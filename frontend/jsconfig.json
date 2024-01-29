@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["./*"]
+      }
+    },
+    "include": [
+      "**/*.js",
+      "src/**/*.d.js",
+      "src/types/**/*.d.js",
+      "src/**/*.js",
+      "src/**/*.jsx",
+      "src/**/*.vue",
+      "wailsjs/**/*.d.ts",
+      "wailsjs/**/*.js",
+      "node_modules/tdesign-vue-next/global.d.ts"
+    ],
+    "compileOnSave": false
+  }
+  

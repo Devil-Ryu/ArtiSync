@@ -1,0 +1,8 @@
+.DS_Store
+**/.DS_Store
+.DS_Store?
+/.idea/
+/.vscode/
+/build/bin
+/frontend/dist
+/frontend/node_modules
