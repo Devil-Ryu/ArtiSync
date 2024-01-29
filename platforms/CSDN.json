@@ -1,0 +1,565 @@
+{
+	"Name": "CSDN",
+	"Disabled": false,
+	"Interfaces": [
+		{
+			"Prior": 1,
+			"Serial": "1cWEy601",
+			"Name": "上传图片接口组",
+			"IsGroup": true,
+			"ParentSerial": null,
+			"Children": [
+				{
+					"Prior": 1,
+					"Serial": "nBA59oZh",
+					"Name": "获取图片接口预置信息",
+					"IsGroup": false,
+					"ParentSerial": "1cWEy601",
+					"Children": null,
+					"Type": "normal",
+					"RequestURL": "https://imgservice.csdn.net/direct/v1.0/image/upload",
+					"RequestURLPath": [],
+					"RequestMethod": "GET",
+					"RequestQuery": [
+						{
+							"Dynamic": false,
+							"Key": "type",
+							"Value": "blog"
+						},
+						{
+							"Dynamic": false,
+							"Key": "x-image-app",
+							"Value": "direct_blog"
+						},
+						{
+							"Dynamic": false,
+							"Key": "x-image-dir",
+							"Value": "direct"
+						},
+						{
+							"Dynamic": false,
+							"Key": "x-image-suffix",
+							"Value": "png"
+						},
+						{
+							"Dynamic": false,
+							"Key": "x-image-template",
+							"Value": "standard"
+						},
+						{
+							"Dynamic": false,
+							"Key": "rtype",
+							"Value": "markdown"
+						}
+					],
+					"RequestHeaders": [
+						{
+							"Dynamic": false,
+							"Key": "Content-Type",
+							"Value": "application/json"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Ch-Ua",
+							"Value": "Chromium"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Mode",
+							"Value": "cors"
+						},
+						{
+							"Dynamic": false,
+							"Key": "User-Agent",
+							"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept",
+							"Value": "*/*"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Ch-Ua-Platform",
+							"Value": "macOS"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Dest",
+							"Value": "empty"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Ca-Signature-Headers",
+							"Value": "x-ca-key,x-ca-nonce"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Encoding",
+							"Value": "gzip, deflate"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Origin",
+							"Value": "https://editor.csdn.net"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Ca-Nonce",
+							"Value": "f262ccac-ae6c-4f8e-8c76-ebe75dc41014"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Ca-Signature",
+							"Value": "Fh4NTqMFbsKyhW+MaJtS2kZvzPI1rKgPsdI8Mt6bKm0="
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Language",
+							"Value": "zh-CN,zh"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Ch-Ua-Mobile",
+							"Value": "?0"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Site",
+							"Value": "same-site"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Ca-Key",
+							"Value": "203803574"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Referer",
+							"Value": "https://editor.csdn.net/"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Cookie",
+							"Value": "UserName=qq_XXXXXXXXXX;UserToken=XXXXXXXXXXXXXXXXXXXXXX"
+						}
+					],
+					"RequestBody": [],
+					"RequestBodyType": "NONE",
+					"ResponseType": "JSON",
+					"ResponseTemple": "{\n    \"code\": 200,\n    \"msg\": \"success\",\n    \"message\": null,\n    \"data\": {\n        \"accessId\": \"none\",\n        \"policy\": \"none\",\n        \"signature\": \"none\",\n        \"dir\": \"direct\",\n        \"expire\": \"none\",\n        \"host\": \"none\",\n        \"callbackUrl\": \"none=\",\n        \"filePath\": \"none\"\n    }\n}",
+					"ResponseValidate": false,
+					"ResponseMapType": "NONE",
+					"ResponseMapRule": ""
+				},
+				{
+					"Prior": 2,
+					"Serial": "FBry9w2t",
+					"Name": "上传图片接口",
+					"IsGroup": false,
+					"ParentSerial": "1cWEy601",
+					"Children": null,
+					"Type": "images",
+					"RequestURL": "https://csdn-img-blog.oss-cn-beijing.aliyuncs.com/",
+					"RequestURLPath": [],
+					"RequestMethod": "POST",
+					"RequestQuery": [],
+					"RequestHeaders": [
+						{
+							"Dynamic": false,
+							"Key": "Content-Type",
+							"Value": "application/json"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Ch-Ua",
+							"Value": "Chromium"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Mode",
+							"Value": "cors"
+						},
+						{
+							"Dynamic": false,
+							"Key": "User-Agent",
+							"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept",
+							"Value": "*/*"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Ch-Ua-Platform",
+							"Value": "macOS"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Dest",
+							"Value": "empty"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Ca-Signature-Headers",
+							"Value": "x-ca-key,x-ca-nonce"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Encoding",
+							"Value": "gzip, deflate"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Origin",
+							"Value": "https://editor.csdn.net"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Ca-Nonce",
+							"Value": "f262ccac-ae6c-4f8e-8c76-ebe75dc41014"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Ca-Signature",
+							"Value": "Fh4NTqMFbsKyhW+MaJtS2kZvzPI1rKgPsdI8Mt6bKm0="
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Language",
+							"Value": "zh-CN,zh"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Ch-Ua-Mobile",
+							"Value": "?0"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Site",
+							"Value": "same-site"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Ca-Key",
+							"Value": "203803574"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Referer",
+							"Value": "https://editor.csdn.net/"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Cookie",
+							"Value": "UserName=qq_XXXXXXXXXX;UserToken=XXXXXXXXXXXXXXXXXXXXXX"
+						}
+					],
+					"RequestBody": [
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "key",
+							"Value": "nBA59oZh.data.filePath"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "policy",
+							"Value": "nBA59oZh.data.policy"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "OSSAccessKeyId",
+							"Value": "nBA59oZh.data.accessId"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": false,
+							"Key": "success_action_status",
+							"Value": "200"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "signature",
+							"Value": "nBA59oZh.data.signature"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "callback",
+							"Value": "nBA59oZh.data.callbackUrl"
+						}
+					],
+					"RequestBodyType": "FORMDATA",
+					"ResponseType": "JSON",
+					"ResponseTemple": "{\n    \"code\": 200,\n    \"data\": {\n        \"hostname\": \"https://img-blog.csdnimg.cn/\",\n        \"imageUrl\": \"none\",\n        \"width\": \"2004\",\n        \"targetObjectKey\": \"none\",\n        \"x-image-suffix\": \"png\",\n        \"height\": \"1204\"\n    },\n    \"msg\": \"success\"\n}",
+					"ResponseValidate": true,
+					"ResponseMapType": "JSON",
+					"ResponseMapRule": "FBry9w2t.data.imageUrl"
+				}
+			],
+			"Type": "images",
+			"RequestURL": "",
+			"RequestURLPath": [],
+			"RequestMethod": "",
+			"RequestQuery": [],
+			"RequestHeaders": [],
+			"RequestBody": [],
+			"RequestBodyType": "NONE",
+			"ResponseType": "NONE",
+			"ResponseTemple": "",
+			"ResponseValidate": false,
+			"ResponseMapType": "NONE",
+			"ResponseMapRule": ""
+		},
+		{
+			"Prior": 1,
+			"Serial": "19RjLSHS",
+			"Name": "上传文章",
+			"IsGroup": false,
+			"ParentSerial": null,
+			"Children": [],
+			"Type": "article",
+			"RequestURL": "https://bizapi.csdn.net/blog-console-api/v3/mdeditor/saveArticle",
+			"RequestURLPath": [],
+			"RequestMethod": "POST",
+			"RequestQuery": [],
+			"RequestHeaders": [
+				{
+					"Dynamic": false,
+					"Key": "Content-Type",
+					"Value": "application/json"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Ch-Ua",
+					"Value": "Chromium"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Mode",
+					"Value": "cors"
+				},
+				{
+					"Dynamic": false,
+					"Key": "User-Agent",
+					"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept",
+					"Value": "*/*"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Ch-Ua-Platform",
+					"Value": "macOS"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Dest",
+					"Value": "empty"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Ca-Signature-Headers",
+					"Value": "x-ca-key,x-ca-nonce"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Encoding",
+					"Value": "gzip, deflate"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Origin",
+					"Value": "https://editor.csdn.net"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Ca-Nonce",
+					"Value": "f262ccac-ae6c-4f8e-8c76-ebe75dc41014"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Ca-Signature",
+					"Value": "Fh4NTqMFbsKyhW+MaJtS2kZvzPI1rKgPsdI8Mt6bKm0="
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Language",
+					"Value": "zh-CN,zh"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Ch-Ua-Mobile",
+					"Value": "?0"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Site",
+					"Value": "same-site"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Ca-Key",
+					"Value": "203803574"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Referer",
+					"Value": "https://editor.csdn.net/"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cookie",
+					"Value": "UserName=qq_XXXXXXXXXX;UserToken=XXXXXXXXXXXXXXXXXXXXXX"
+				}
+			],
+			"RequestBody": [
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "not_auto_saved",
+					"Value": "1"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "pubStatus",
+					"Value": "draft"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "status",
+					"Value": "2"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "type",
+					"Value": "original"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "authorized_status",
+					"Value": "false"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "content",
+					"Value": ""
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "level",
+					"Value": "0"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "readType",
+					"Value": "public"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "source",
+					"Value": "pc_mdeditor"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "is_new",
+					"Value": "1"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "original_link",
+					"Value": ""
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "vote_id",
+					"Value": "0"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "markdowncontent",
+					"Value": ""
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "resource_id",
+					"Value": ""
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "title",
+					"Value": "发布助手上传文章"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "markdowncontent",
+					"Value": "0.article"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "content",
+					"Value": "0.article"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "title",
+					"Value": "0.title"
+				}
+			],
+			"RequestBodyType": "JSON",
+			"ResponseType": "NONE",
+			"ResponseTemple": "",
+			"ResponseValidate": false,
+			"ResponseMapType": "NONE",
+			"ResponseMapRule": ""
+		}
+	]
+}
