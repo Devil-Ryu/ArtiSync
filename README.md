@@ -31,7 +31,7 @@ wails build
 本项目采用`wails`开发，逻辑使用GO语言，前端页面使用VUE3，前端模板采用TDesigner
 
 ## 使用手册
-软件中用请遵循[软件许可使用协议](https://github.com/Devil-Ryu/ArtiSync/blob/beta/AGREEMENT.md)，软件使用可查看[使用手册](https://github.com/Devil-Ryu/ArtiSync/blob/beta/manual.md)
+软件中用请遵循[软件许可使用协议](https://github.com/Devil-Ryu/ArtiSync/blob/master/AGREEMENT.md)，软件使用可查看[使用手册](https://github.com/Devil-Ryu/ArtiSync/blob/master/manual.md)
 
 ## 已完成功能
 - [X] 修改接口增加请求头，请求体的方法
