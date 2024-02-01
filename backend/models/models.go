@@ -52,6 +52,7 @@ type RPath struct {
 type Header struct {
 	ID          uint `gorm:"primaryKey"`
 	InterfaceID uint
+	Convert     bool   `gorm:"default:false"`
 	Dynamic     bool   `gorm:"default:false"` // 参数是否动态获取（默认为false,如果为其他的，会修改对应位置的值）
 	Key         string // 键
 	Value       string // 值
@@ -72,6 +73,7 @@ type Body struct {
 	InterfaceID uint
 	IsFile      bool   `gorm:"default:false"` // 是否为文件
 	FileName    string // 文件名称
+	Convert     bool   `gorm:"default:false"`
 	Dynamic     bool   `gorm:"default:false"` // 参数是否动态获取（默认为false,如果为其他的，会修改对应位置的值）
 	Key         string // 键
 	Value       string // 值

@@ -58,6 +58,21 @@ func (n *NetWorkController) SetProxyURL(proxURL *url.URL) {
 	n.ProxURL = proxURL
 }
 
+func (n *NetWorkController) convertValue(inputValue string) (output interface{}) {
+	// 尝试转化为整型
+	output, err := strconv.Atoi(inputValue)
+	if err == nil {
+		return output
+	}
+
+	// 尝试转化为浮点型
+	output, err = strconv.ParseFloat(inputValue, 64)
+	if err == nil {
+		return output
+	}
+	return inputValue
+}
+
 // GetDynamicParam 获取动态参数(修改为判断对应接口的返回值类型)
 func (n *NetWorkController) GetDynamicParam(paramValue string) (retVal string, err error) {
 	var responseType string
@@ -152,16 +167,21 @@ func (n *NetWorkController) ParseBody(bodyType string, bodyData []models.Body) (
 
 	// 请求体为JSON时（只支持一级，不支持多级JSON）
 	if strings.ToUpper(bodyType) == "JSON" {
-		jsonData := map[string]string{}
+		jsonData := map[string]interface{}{}
 		for _, item := range bodyData {
+			tmp := item.Value
 			if item.Dynamic {
 				itemValue, err := n.GetDynamicParam(item.Value)
 				if err != nil {
 					return requestData, contentType, fmt.Errorf("Err|ParseBody: %w", err)
 				}
 				jsonData[item.Key] = itemValue
+				tmp = itemValue
 			} else {
 				jsonData[item.Key] = item.Value
+			}
+			if item.Convert {
+				jsonData[item.Key] = n.convertValue(tmp)
 			}
 		}
 		jsonStr, _ := json.Marshal(jsonData)

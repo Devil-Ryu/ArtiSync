@@ -4,9 +4,11 @@ import (
 	"ArtiSync/backend/api"
 	"ArtiSync/backend/models"
 	"ArtiSync/backend/utils"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 
@@ -76,4 +78,53 @@ func TestGJSON(t *testing.T) {
 	aaa := []string{}
 	println(aaa == nil)
 	fmt.Println(aaa)
+}
+
+func TestType(t *testing.T) {
+	a := "111.111"
+	b := convertValue(a)
+	fmt.Println(a)
+	fmt.Println(b)
+
+	jsonData := map[string]interface{}{}
+	jsonData["testA"] = a
+	jsonData["testB"] = b
+
+	jsonStr, err := json.Marshal(jsonData)
+	if err != nil {
+		fmt.Println("Err: ", err)
+	}
+	requestData := string(jsonStr)
+	fmt.Println(requestData)
+
+	jsonDatab := map[string]string{}
+	jsonDatab["testA"] = a
+	ua, err := strconv.Unquote(a)
+	jsonDatab["testB"] = ua
+
+	jsonStr, err = json.Marshal(jsonDatab)
+	if err != nil {
+		fmt.Println("Err: ", err)
+	}
+	requestData = string(jsonStr)
+	fmt.Println(requestData)
+
+}
+
+func convertValue(inputValue string) (output interface{}) {
+	// 尝试转化为整型
+	output, err := strconv.Atoi(inputValue)
+	if err == nil {
+		fmt.Println("int")
+		return output
+	}
+
+	// 尝试转化为浮点型
+	output, err = strconv.ParseFloat(inputValue, 64)
+	if err == nil {
+		fmt.Println("float")
+		return output
+	}
+	fmt.Println("str")
+	return inputValue
 }
