@@ -14,7 +14,8 @@ export const useInterfacesStore = defineStore('interface', ()=>{
     const platform = ref({
         Name: "",
         ID: undefined,
-        Interfaces: []
+        Interfaces: [],
+        ReplaceMaps: []
     })
     const interfaces = ref([])
     // const options = ref([])
@@ -69,8 +70,15 @@ export const useInterfacesStore = defineStore('interface', ()=>{
         
           return tmp
     })
-    return {visible, title, platform, interfaces, options}
+
+    // 平台接口选项
+    const SerialOptions = computed(()=>{
+      return platform.value.Interfaces.map(item=>{return {label:item.Name, value:item.Serial}})
+    })
+    return {visible, title, platform, interfaces, options, SerialOptions}
 })
+
+
 
 // 转化JSON至Cascader数据,数据值value为1.data.src
 function convertData(originalData, prefix = null) {

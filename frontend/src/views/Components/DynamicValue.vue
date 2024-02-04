@@ -60,7 +60,7 @@ const props = defineProps({
     }
 })
 
-const emits = defineEmits(['update:dynamic', 'update:value'])
+// const emits = defineEmits(['update:dynamic', 'update:value'])
 const options = [
     {label: "动态", value: 1, description: "自定义下拉选项的选择一段"},
     {label: "静态", value: 0, description: "自定义下拉选项的选择一段"},

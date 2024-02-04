@@ -1,17 +1,23 @@
 package models
 
 import (
+	"database/sql/driver"
 	"math/rand"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
+// StringList 字符列表
+type StringList []string
+
 // Platform 平台配置
 type Platform struct {
-	ID         uint        `gorm:"primaryKey"`
-	Name       string      // 平台名称
-	Disabled   bool        `gorm:"default:false"` // 是否禁用
-	Interfaces []Interface // 平台下的接口（一对多关系）
+	ID          uint         `gorm:"primaryKey"`
+	Name        string       // 平台名称
+	Disabled    bool         `gorm:"default:false"` // 是否禁用
+	Interfaces  []Interface  // 平台下的接口（一对多关系）
+	ReplaceMaps []ReplaceMap // 平台下的替换规则
 }
 
 // Interface 接口（组）配置
@@ -58,6 +64,17 @@ type Header struct {
 	Value       string // 值
 }
 
+// ReplaceMap 替换Map
+type ReplaceMap struct {
+	ID         uint `gorm:"primaryKey"`
+	PlatformID uint
+	Disabled   bool       `gorm:"default:false"`  // 是否禁用
+	Type       string     `gorm:"default:header"` // 替换的位置
+	Key        string     // 键
+	Value      string     // 值
+	Interfaces StringList // 应用的接口编号
+}
+
 // Query 请求参数
 type Query struct {
 	ID          uint `gorm:"primaryKey"`
@@ -87,17 +104,19 @@ func (i *Interface) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
-// func (s *StringList) Scan(valueStr interface{}) error {
-// 	tmp := valueStr.(string)
-// 	valueArr := strings.Split(tmp, "|")
-// 	*s = valueArr
-// 	return nil
-// }
+// Scan 查询方法
+func (s *StringList) Scan(valueStr interface{}) error {
+	tmp := valueStr.(string)
+	valueArr := strings.Split(tmp, "|")
+	*s = valueArr
+	return nil
+}
 
-// func (s StringList) Value() (driver.Value, error) {
-// 	str := strings.Join(s, "|")
-// 	return str, nil
-// }
+// Value 储存方法
+func (s StringList) Value() (driver.Value, error) {
+	str := strings.Join(s, "|")
+	return str, nil
+}
 
 // // BeforeDelete Hook 资源级联删除接口记录
 //
@@ -146,3 +165,7 @@ func generateRandomKey(length int) string {
 	}
 	return result
 }
+
+/*
+ReplaceMaps: [{"GroupName": "xxxx1", "Maps": []}, ]
+*/

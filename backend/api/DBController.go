@@ -64,7 +64,7 @@ func (d *DBController) AutoMigrate() (err error) {
 	}
 
 	// 数据库迁移
-	err = d.DB.AutoMigrate(&models.Platform{}, &models.Interface{}, &models.Header{}, &models.Body{}, &models.Query{}, &models.RPath{})
+	err = d.DB.AutoMigrate(&models.Platform{}, &models.Interface{}, &models.Header{}, &models.Body{}, &models.Query{}, &models.RPath{}, &models.ReplaceMap{})
 	if err != nil {
 		return err
 	}
@@ -167,6 +167,12 @@ func (d *DBController) UpdatePlatform(platform models.Platform) error {
 	}
 	// 添加新平台信息
 	d.DB.Model(&models.Platform{ID: platform.ID}).Select("Name", "Disabled").Updates(platform)
+
+	// 删除已有规则
+	d.DB.Unscoped().Model(&models.Platform{ID: platform.ID}).Association("ReplaceMaps").Unscoped().Clear()
+	// 更新新的规则
+	d.DB.Unscoped().Model(&models.Platform{ID: platform.ID}).Association("ReplaceMaps").Replace(platform.ReplaceMaps)
+
 	return nil
 
 }
@@ -208,7 +214,7 @@ func (d *DBController) deleteInterfaceChildren(interfaceInfo models.Interface) e
 
 }
 
-// DeletePlatforms 批量删除平台(RPath 没删完全， querier没删完全)
+// DeletePlatforms 批量删除平台
 func (d *DBController) DeletePlatforms(platforms []models.Platform) error {
 	// 检查数据库连接
 	err := d.CheckConnect()
@@ -224,7 +230,7 @@ func (d *DBController) DeletePlatforms(platforms []models.Platform) error {
 		d.deleteInterfaceChildren(interfaceInfo)
 	}
 
-	// 删除平台及其对应接口
+	// 删除平台及其对应关联
 	d.DB.Select(clause.Associations).Delete(&platforms)
 	return nil
 

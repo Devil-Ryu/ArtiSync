@@ -4,10 +4,11 @@ package api
 
 // Platform 平台配置
 type Platform struct {
-	ID         uint        `json:"-"`
-	Name       string      // 平台名称
-	Disabled   bool        // 是否禁用
-	Interfaces []Interface // 平台下的接口（一对多关系）
+	ID          uint         `json:"-"`
+	Name        string       // 平台名称
+	Disabled    bool         // 是否禁用
+	Interfaces  []Interface  // 平台下的接口（一对多关系）
+	ReplaceMaps []ReplaceMap // 平台下的替换规则
 }
 
 // Interface 接口（组）配置
@@ -42,6 +43,17 @@ type RPath struct {
 	InterfaceID uint   `json:"-"`
 	Dynamic     bool   // 参数是否动态获取（默认为false,如果为其他的，会修改对应位置的值）
 	Value       string // 值
+}
+
+// ReplaceMap 替换Map
+type ReplaceMap struct {
+	ID         uint     `json:"-"`
+	PlatformID uint     `json:"-"`
+	Disabled   bool     `gorm:"default:false"`  // 是否禁用
+	Type       string   `gorm:"default:header"` // 替换的位置
+	Key        string   // 键
+	Value      string   // 值
+	Interfaces []string // 应用的接口编号
 }
 
 // Header 请求头

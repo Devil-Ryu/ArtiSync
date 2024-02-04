@@ -4,15 +4,9 @@ import (
 	"ArtiSync/backend/api"
 	"ArtiSync/backend/models"
 	"ArtiSync/backend/utils"
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
 	"testing"
 	"time"
-
-	"github.com/tidwall/gjson"
 )
 
 func TestController(t *testing.T) {
@@ -55,76 +49,19 @@ func TestNetworkController(t *testing.T) {
 
 }
 
-func TestJSON(t *testing.T) {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		println("获取用户配置目录失败: %w", err)
-	}
-	configPath := filepath.Join(dir, "ArtiSync")
-	println("configPath", configPath)
+func TestReplaceMap(t *testing.T) {
+	tests := models.ReplaceMap{Type: "headers", Key: "Cookies", Value: "test123", Interfaces: models.StringList{"TEST222", "TEST222"}}
 
-	err = os.Mkdir(configPath, 0755)
-	if err != nil && !os.IsExist(err) {
-		fmt.Println("err1: ", err)
-	}
-}
+	dbController := api.NewDBController()
+	dbController.Connect("/Users/ryu/Documents/test.db")
+	// var query map[string]interface{}
+	platform := models.Platform{ID: 5, Name: "ceshi"}
+	// dbController.CreatePlatform([]models.Platform{platform})
+	platform, err := dbController.GetPlatform(platform)
+	fmt.Println("err:", err)
+	platform.ReplaceMaps = []models.ReplaceMap{tests}
 
-func TestGJSON(t *testing.T) {
+	dbController.UpdatePlatform(platform)
+	// dbController.DeletePlatforms([]models.Platform{platform})
 
-	test := `{"test":"ddddd","response": dasfdasf}`
-	result := gjson.Parse(test)
-	println(result.String())
-
-	aaa := []string{}
-	println(aaa == nil)
-	fmt.Println(aaa)
-}
-
-func TestType(t *testing.T) {
-	a := "111.111"
-	b := convertValue(a)
-	fmt.Println(a)
-	fmt.Println(b)
-
-	jsonData := map[string]interface{}{}
-	jsonData["testA"] = a
-	jsonData["testB"] = b
-
-	jsonStr, err := json.Marshal(jsonData)
-	if err != nil {
-		fmt.Println("Err: ", err)
-	}
-	requestData := string(jsonStr)
-	fmt.Println(requestData)
-
-	jsonDatab := map[string]string{}
-	jsonDatab["testA"] = a
-	ua, err := strconv.Unquote(a)
-	jsonDatab["testB"] = ua
-
-	jsonStr, err = json.Marshal(jsonDatab)
-	if err != nil {
-		fmt.Println("Err: ", err)
-	}
-	requestData = string(jsonStr)
-	fmt.Println(requestData)
-
-}
-
-func convertValue(inputValue string) (output interface{}) {
-	// 尝试转化为整型
-	output, err := strconv.Atoi(inputValue)
-	if err == nil {
-		fmt.Println("int")
-		return output
-	}
-
-	// 尝试转化为浮点型
-	output, err = strconv.ParseFloat(inputValue, 64)
-	if err == nil {
-		fmt.Println("float")
-		return output
-	}
-	fmt.Println("str")
-	return inputValue
 }
