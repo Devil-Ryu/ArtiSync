@@ -2,7 +2,9 @@
     <div>
         <t-input-adornment v-if="!props.item.Dynamic">
             <template #prepend>
-                <t-select 
+                <t-select
+                    :disabled="$attrs.disabled"
+                    :inputProps="{status:$attrs.status}"
                     class="d-select"
                     @change="(value)=>{props.item.Dynamic=Boolean(value)}"
                 >
@@ -16,12 +18,21 @@
                     </t-option>
                 </t-select>
             </template>
-                <t-input class="d-value" v-if="!props.item.Dynamic" v-model="props.item.Value" placeholder="请输入值"/>
+                <t-input 
+                    class="d-value" 
+                    v-if="!props.item.Dynamic" 
+                    v-model="props.item.Value" 
+                    placeholder="请输入值" 
+                    :status="$attrs.status"
+                    :disabled="$attrs.disabled"
+                />
         </t-input-adornment>
 
         <t-input-adornment v-if="props.item.Dynamic">
             <template #prepend>
-                <t-select 
+                <t-select
+                :disabled="$attrs.disabled"
+                    :inputProps="{status:$attrs.status}"
                     style="background-color: white; width: 40px; " 
                     @change="(value)=>{props.item.Dynamic=Boolean(value)}"
                 >
@@ -32,12 +43,11 @@
                     <t-option v-for="item in options" :key="item.value" :value="item.value" :label="item.label">
                         <LettersDIcon v-if="item.value" style="color:chocolate; "/>
                         <LettersSIcon v-if="!item.value" style="color: cornflowerblue;" />
-             
                         {{ item.label }}
                     </t-option>
                 </t-select>
             </template>
-                <t-cascader class="d-value" v-if="props.item.Dynamic" v-model="props.item.Value" :options="props.cascaderOptions" check-strictly />
+                <t-cascader class="d-value" :inputProps="{status:$attrs.status}" v-if="props.item.Dynamic" v-model="props.item.Value" :options="props.cascaderOptions" check-strictly />
         </t-input-adornment>
     </div>
 </template>

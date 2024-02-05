@@ -112,7 +112,6 @@ function editPlatform(platform) {
     interfacesStore.title = platform.Name
     interfacesStore.platform = result
     interfacesStore.visible = true
-    console.log("editPlatform done!")
   })
 }
 

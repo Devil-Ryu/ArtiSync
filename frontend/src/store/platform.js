@@ -29,9 +29,6 @@ export const useInterfacesStore = defineStore('interface', ()=>{
                 ]
             }
           ]
-          console.log("interfacesStore1", platform.value.Interfaces)
-          console.log("platform", platform.value)
-          
           platform.value.Interfaces.forEach(interface_ => {
             // 分析本接口
             if (interface_.ResponseType != null && interface_.ResponseType === "JSON") {
@@ -73,12 +70,51 @@ export const useInterfacesStore = defineStore('interface', ()=>{
 
     // 平台接口选项
     const SerialOptions = computed(()=>{
-      return platform.value.Interfaces.map(item=>{return {label:item.Name, value:item.Serial}})
+      var result = []
+      platform.value.Interfaces.forEach(item=>{
+        if (item.IsGroup === true) {
+          item.Children.forEach(subItem=>{
+            result.push({label:subItem.Name, value:subItem.Serial})
+          })
+        } else {
+          result.push({label:item.Name, value:item.Serial})
+        }
+        
+      })
+      return result
     })
     return {visible, title, platform, interfaces, options, SerialOptions}
 })
 
+// 批量导入组件
+export const useBatchImportStore = defineStore('batchImport', ()=>{
+  const visible = ref(false)
+  const typeInsert = ref(false)
+  const importType = ref("Headers")
+  const importTypeOptions = ref([
+    { label: 'Path', value: 'Path' },
+    { label: 'Query', value: 'Query' },
+    { label: 'Headers', value: 'Headers' },
+    { label: 'Body', value: 'Body' },
+  ])
+  const formatOptions = ref([
+    { label: 'JSON格式', value: 'JSON' },
+    { label: 'ROWDATA格式', value: 'ROWDATA' },
+    // { label: 'SQLITE文件格式', value: 'SQLITE' },
+  ])
+  const formatPlacehodler = ref({
+    "JSON": "{'key':'value'}",
+    "ROWDATA": "key1=value1\nkey2=value2",
+    "SQLITE": "Sqlite文件",
+  })
+  const formatSelectValue = ref("JSON")
+  const content = ref("")
+  const contentArr = ref([])
 
+  return {visible, typeInsert, importType, importTypeOptions, formatOptions, formatPlacehodler, formatSelectValue, content, contentArr}
+
+
+})
 
 // 转化JSON至Cascader数据,数据值value为1.data.src
 function convertData(originalData, prefix = null) {

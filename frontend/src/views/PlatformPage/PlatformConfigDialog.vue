@@ -46,35 +46,60 @@
         </t-tab-panel>
         <t-tab-panel label="编辑规则" value="mapRules">
           <div style="margin-top: 8px;">
-            <t-row v-for="(item, index) in interfacesStore.platform.ReplaceMaps" :gutter="5" style="margin-top: 4px;" align="center" >
+            <t-row v-for="(item, index) in interfacesStore.platform.ReplaceMaps" :gutter="5" style="margin-top: 4px;"
+              align="center">
               <t-col>
                 <CheckSelect v-model:item="interfacesStore.platform.ReplaceMaps[index]" />
               </t-col>
-              <t-col style="width: 15%;" >
+              <t-col style="width: 15%;">
                 <t-input placeholder="请输入键" v-model="item.Key" />
               </t-col>
-              <t-col style="width: 25%;" >
+              <t-col style="width: 25%;">
                 <t-input placeholder="请输入值" v-model="item.Value" />
               </t-col>
-              <t-col style="width: 40%;" >
+              <t-col style="width: 38%;">
                 <t-select placeholder="请选择接口" v-model:value="item.Interfaces" :options="interfacesStore.SerialOptions"
-                  multiple :min-collapsed-num="2" />
+                  multiple :min-collapsed-num="1">
+                  <template #panelTopContent>
+                    <t-row justify="space-around">
+                      <t-col :span="6">
+                        <t-button theme="primary" variant="text" block @click="selectAll(item)">
+                          全选
+                        </t-button>
+                      </t-col>
+                      <t-col :span="6">
+                        <t-button theme="primary" variant="text" block @click="unSelectAll(item)">
+                          取消全选
+                        </t-button>
+                      </t-col>
+                    </t-row>
+                  </template>
+                </t-select>
               </t-col>
-              <t-col style="width: 4%; text-align: center;" >
-                <DeleteIcon size="15px" style="color: indianred" 
-                @click="arrDelete(interfacesStore.platform.ReplaceMaps, index)"
-                />
+              <t-col style="width: 5%; text-align: center;">
+                <DeleteIcon size="15px" style="color: indianred"
+                  @click="arrDelete(interfacesStore.platform.ReplaceMaps, index)" />
               </t-col>
             </t-row>
-            <t-link size="small" style="margin-left: 4px;" theme="primary"
-              @click="arrAdd(interfacesStore.platform.ReplaceMaps)">添加规则</t-link>
-            <!-- <t-link size="small" style="margin-left: 4px;" theme="primary"
-              @click="openBatchDialog(interfacesStore.platform.ReplaceMaps)">批量导入</t-link> -->
+            <t-row justify="space-between">
+              <t-col>
+                <t-link size="small" style="margin-left: 4px;" theme="primary"
+                  @click="arrAdd(interfacesStore.platform.ReplaceMaps)">添加规则</t-link>
+                <t-link size="small" style="margin-left: 4px;" theme="primary"
+                  @click="openBatchDialog(interfacesStore.platform.ReplaceMaps)">批量导入</t-link>
+                <t-link size="small" style="margin-left: 4px;" theme="primary"
+                  @click="ruleFullStatus(false)">全部启用</t-link>
+                <t-link size="small" style="margin-left: 4px;" theme="danger"
+                  @click="ruleFullStatus(true)">全部禁用</t-link>
+              </t-col>
+            </t-row>
           </div>
         </t-tab-panel>
       </t-tabs>
     </template>
   </t-dialog>
+
+  <BatchImportDialog />
 </template>
 
 <script lang="jsx" setup>
@@ -83,15 +108,26 @@ import InterfaceGroupForm from "./InterfaceGroupForm.vue";
 import InterfaceConfigForm from "./InterfaceConfigForm.vue";
 import { CreateInterface, DeleteInterfaces, UpdateInterface, UpdatePlatform } from "../../../wailsjs/go/api/DBController.js";
 import { AddCircleIcon, AddIcon, DeleteIcon, ChevronUpIcon, ChevronDownIcon, CheckRectangleFilledIcon } from "tdesign-icons-vue-next";
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useInterfacesStore, usePlatformStore } from "@/src/store/platform"
+import BatchImportDialog from "../Components/BatchImportDialog.vue";
+import { useBatchImportStore } from '@/src/store/platform'
 import CheckSelect from "./Components/CheckSelect.vue";
 
+const batchImportStore = useBatchImportStore()
 const interfacesStore = useInterfacesStore()
 const platformStore = usePlatformStore()
 
 const clickBtn = ref("")
 let oldForm = undefined
+
+watch(
+  () => interfacesStore.platform.ReplaceMaps,
+  (oldValue, newValue) => {
+    replaceMapConvert()
+  },
+  { deep: true }
+)
 
 function onOpen() {
   oldForm = JSON.stringify(interfacesStore.platform);
@@ -171,18 +207,86 @@ function updatePlatform(platform) {
 }
 
 function arrAdd(arr) {
-  arr.push({ disabled: false })
+  arr.push({})
 }
 
 function arrDelete(arr, index) {
   arr.splice(index, 1)[0];
 }
 
-// function openBatchDialog(arr) {
-//   batchImportDialogVisible.value = true
-//   batchImportArr.value = arr
-// }
+function openBatchDialog(arr) {
+  batchImportStore.typeInsert = true
+  batchImportStore.contentArr = arr
+  batchImportStore.visible = true
+}
 
+function selectAll(item) {
+  item.Interfaces = interfacesStore.SerialOptions.map(item => { return item.value })
+}
+
+function unSelectAll(item) {
+  item.Interfaces = []
+}
+
+function ruleFullStatus(disabled) {
+  for (let i = 0; i < interfacesStore.platform.ReplaceMaps.length; i++) {
+    interfacesStore.platform.ReplaceMaps[i].Disabled = disabled
+  }
+  if (disabled === true) {
+    MessagePlugin.error("全部禁用成功")
+  } else {
+
+    MessagePlugin.success("全部启用成功")
+  }
+}
+
+function replaceMapConvert() {
+  interfacesStore.platform.ReplaceMaps.forEach((ruleItem) => {
+    // 判断规则是否被禁用
+    if (ruleItem.Interfaces && !ruleItem.Disabled) {
+      // 遍历规则应用的接口编号
+      ruleItem.Interfaces.forEach((interfaceSerial) => {
+        replaceInterfaceMap(interfaceSerial, ruleItem.Type, ruleItem.Key, ruleItem.Value, interfacesStore.platform.Interfaces)
+      })
+    }
+  })
+}
+
+// 找到接口并替换对应区域
+function replaceInterfaceMap(Serial, Type, Key, Value, interfaceList) {
+  // 遍历接口列表
+  for (let i = 0; i < interfaceList.length; i++) {
+    // 找到要替换的接口
+    if (interfaceList[i].Serial === Serial) {
+      // 找到替换的区域
+      if (Type === "Query") {
+        replaceInterfaceAttr(interfaceList[i].RequestQuery, Key, Value)
+      }
+      if (Type === "Headers") {
+        replaceInterfaceAttr(interfaceList[i].RequestHeaders, Key, Value)
+      }
+      if (Type === "Body") {
+        replaceInterfaceAttr(interfaceList[i].RequestBody, Key, Value)
+      }
+    }
+
+    // 如果为组则在组内搜索接口
+    if (interfaceList[i].IsGroup === true) {
+      replaceInterfaceMap(Serial, Type, Key, Value, interfaceList[i].Children)
+    }
+
+  }
+}
+
+// 替换接口对应区域
+function replaceInterfaceAttr(arr, Key, Value) {
+  var keyIndex = arr.findIndex((item) => item.Key === Key)
+  if (keyIndex !== -1) {
+    arr[keyIndex]["Value"] = Value
+  } else {
+    arr.push({ Key: Key, Value: Value })
+  }
+}
 </script>
 
 <style scoped></style>

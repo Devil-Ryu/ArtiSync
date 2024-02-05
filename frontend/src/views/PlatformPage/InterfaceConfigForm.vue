@@ -53,10 +53,19 @@
           <div style="width: 100%;">
             <t-row v-for="(item, index) in props.interfaceForm.RequestQuery" :gutter="5" style="margin-top: 4px;">
                 <t-col class="input-list-key">
-                  <t-input  v-model="item.Key" placeholder="请输入键" />
+                  <t-input 
+                    v-model="item.Key"
+                    placeholder="请输入键"
+                    :status="replaceFilter(props.interfaceForm.Serial, 'Query', item.Key)?linkTheme:defaultTheme"
+                  />
                 </t-col>
                 <t-col flex="auto">
-                  <DynamicValue  v-model:item="props.interfaceForm.RequestQuery[index]" v-model:cascaderOptions="interfacesStore.options"/>
+                  <DynamicValue 
+                    v-model:item="props.interfaceForm.RequestQuery[index]"
+                    v-model:cascaderOptions="interfacesStore.options"
+                    :status="replaceFilter(props.interfaceForm.Serial, 'Query', item.Key)?linkTheme:defaultTheme"
+                    :disabled="replaceFilter(props.interfaceForm.Serial, 'Query', item.Key)"
+                  />
                 </t-col>
                 <t-col flex="none">
                   <DeleteIcon size="15px" style="color: indianred"
@@ -74,10 +83,20 @@
           <div style="width: 100%;">
             <t-row v-for="(item, index) in props.interfaceForm.RequestHeaders" :gutter="5" style="margin-top: 4px;">
                 <t-col class="input-list-key">
-                  <t-input  v-model="item.Key" placeholder="请输入键" />
+                  <t-input  
+                    v-model="item.Key" 
+                    placeholder="请输入键"  
+                    :status="replaceFilter(props.interfaceForm.Serial, 'Headers', item.Key)?linkTheme:defaultTheme"
+                  />
                 </t-col>
                 <t-col flex="auto">
-                  <DynamicValue  v-model:item="props.interfaceForm.RequestHeaders[index]" v-model:cascaderOptions="interfacesStore.options"/>
+                  <DynamicValue 
+                    v-model:item="props.interfaceForm.RequestHeaders[index]"
+                    v-model:cascaderOptions="interfacesStore.options"
+                    :status="replaceFilter(props.interfaceForm.Serial, 'Headers', item.Key)?linkTheme:defaultTheme"
+                    :disabled="replaceFilter(props.interfaceForm.Serial, 'Headers', item.Key)"
+                    />
+                    
                 </t-col>
                 <t-col flex="none">
                   <DeleteIcon size="15px" style="color: indianred"
@@ -101,10 +120,19 @@
             </t-row>
             <t-row v-for="(item, index) in props.interfaceForm.RequestBody" :gutter="5" style="margin-top: 4px;">
                 <t-col class="input-list-key">
-                  <t-input  v-model="item.Key" placeholder="请输入键" />
+                  <t-input
+                    v-model="item.Key"
+                    placeholder="请输入键"
+                    :status="replaceFilter(props.interfaceForm.Serial, 'Body', item.Key)?linkTheme:defaultTheme"
+                  />
                 </t-col>
                 <t-col flex="auto">
-                  <DynamicValue  v-model:item="props.interfaceForm.RequestBody[index]" v-model:cascaderOptions="interfacesStore.options"/>
+                  <DynamicValue
+                    v-model:item="props.interfaceForm.RequestBody[index]"
+                    v-model:cascaderOptions="interfacesStore.options"
+                    :status="replaceFilter(props.interfaceForm.Serial, 'Body', item.Key)?linkTheme:defaultTheme"
+                    :disabled="replaceFilter(props.interfaceForm.Serial, 'Body', item.Key)"
+                  />
                 </t-col>
                 <t-col flex="auto"  v-if="item.IsFile">
                   <t-input v-model="item.FileName" placeholder="文件名称" />
@@ -164,22 +192,21 @@
     </t-tabs>
   </t-form>
 
-  <t-dialog v-model:visible="batchImportDialogVisible" header="批量导入" width="60%" @confirm="batchImport">
-    <t-select :options="batchImportSelectOptions" v-model="batchImportDialogSelectValue" />
-    <t-textarea v-model:value="batchImportDialogContent" :autosize="{ minRows: 10, maxRows: 20 }"
-      :placeholder="batchImportContentPlaceholder[batchImportDialogSelectValue]" />
-
-  </t-dialog>
+  <BatchImportDialog />
 </template>
 
 <script setup>
-
+import BatchImportDialog from "@/src/views/Components/BatchImportDialog.vue";
 import { DeleteIcon, DataDisplayIcon, FileAttachmentIcon} from "tdesign-icons-vue-next";
 import { computed, ref } from "vue";
-import { useInterfacesStore } from "@/src/store/platform"
+import { useInterfacesStore, useBatchImportStore } from "@/src/store/platform"
 import { MessagePlugin } from "tdesign-vue-next";
 import DynamicValue from "@/src/views/Components/DynamicValue.vue";
 const interfacesStore = useInterfacesStore()
+const batchImportStore = useBatchImportStore()
+
+const linkTheme = "success"
+const defaultTheme = "default"
 
 const props = defineProps({
   title: {
@@ -193,6 +220,7 @@ const props = defineProps({
         ID: undefined,
         PlatformID: undefined,
         Index: undefined,
+        Serial: undefined,
         Name: "", 
         IsGroup: true,
         ParentSerial: undefined,
@@ -239,21 +267,21 @@ const responseMapTypeOptions = [
   { label: 'NONE', value: 'NONE' },
 ]
 
-const batchImportDialogVisible = ref(false)
-const batchImportSelectOptions = [
-  { label: 'JSON格式', value: 'JSON' },
-  { label: 'ROWDATA格式', value: 'ROWDATA' },
-  // { label: 'SQLITE文件格式', value: 'SQLITE' },
-]
-const batchImportContentPlaceholder =
-{
-  "JSON": "{'key':'value'}",
-  "ROWDATA": "key1=value1\nkey2=value2",
-  "SQLITE": "Sqlite文件",
-}
-const batchImportDialogSelectValue = ref("JSON")
-const batchImportDialogContent = ref("")
-const batchImportArr = ref([])
+// const batchImportDialogVisible = ref(false)
+// const batchImportSelectOptions = [
+//   { label: 'JSON格式', value: 'JSON' },
+//   { label: 'ROWDATA格式', value: 'ROWDATA' },
+//   // { label: 'SQLITE文件格式', value: 'SQLITE' },
+// ]
+// const batchImportContentPlaceholder =
+// {
+//   "JSON": "{'key':'value'}",
+//   "ROWDATA": "key1=value1\nkey2=value2",
+//   "SQLITE": "Sqlite文件",
+// }
+// const batchImportDialogSelectValue = ref("JSON")
+// const batchImportDialogContent = ref("")
+// const batchImportArr = ref([])
 
 
 function arrAdd(arr) {
@@ -265,35 +293,9 @@ function arrDelete(arr, index) {
 }
 
 function openBatchDialog(arr) {
-  batchImportDialogVisible.value = true
-  batchImportArr.value = arr
-}
-
-function batchImport() {
-  console.log("batchImportDialogContent: ", batchImportDialogContent.value.toString())
-  console.log("batchImportDialogSelectValue: ", batchImportDialogSelectValue.value)
-  // console.log("batchImportArr: ", batchImportArr.value)
-  if (batchImportDialogSelectValue.value === "ROWDATA") {
-    var lines = batchImportDialogContent.value.split('\n')
-    lines.forEach(element => {
-      var line = element.split(': ')
-      var key = line[0].trim()
-      // var value = line.slice(1).join(': ').trim()
-      var value = line[1].trim()
-      batchImportArr.value.push({ Dynamic: false, Key: key, Value: value })
-    });
-  }
-  if (batchImportDialogSelectValue.value === "JSON") {
-    try {
-      var jsonOBJ = JSON.parse(batchImportDialogContent.value.toString())
-      Object.keys(jsonOBJ).forEach((key)=>{
-        batchImportArr.value.push({ Dynamic: false, Key: key, Value: String(jsonOBJ[key]) })
-      })
-    } catch (error) {
-      MessagePlugin.error("JSON解析错误: "+ error)
-    }
-  }
-
+  batchImportStore.typeInsert = false
+  batchImportStore.contentArr = arr
+  batchImportStore.visible = true
 }
 
 const onSubmit = ({ validateResult, firstError, e }) => {
@@ -305,6 +307,12 @@ const onSubmit = ({ validateResult, firstError, e }) => {
     MessagePlugin.warning(firstError);
   }
 };
+
+function replaceFilter(Serail, Type, Key) {
+  var result = interfacesStore.platform.ReplaceMaps.filter((item)=>{return item.Interfaces.indexOf(Serail)!==-1 && item.Type===Type && item.Key===Key && !item.Disabled})
+  return result.length !== 0
+}
+
 
 </script>
 
