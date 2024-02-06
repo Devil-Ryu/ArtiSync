@@ -19,7 +19,7 @@ export const useArticleDetailStore = defineStore('articleDetail', ()=>{
     const article = ref({
         title: "文章详情"
     })
-    const visible = ref(false)
+    const visible = ref(true)
     const imageProgressList = ref([])
     return {visible, article, imageProgressList}
 })
