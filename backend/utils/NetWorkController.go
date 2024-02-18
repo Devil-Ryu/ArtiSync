@@ -9,19 +9,23 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"path"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/tidwall/gjson"
 )
 
 // NetWorkController 网络控制器(TODO 增加睡眠时长，以及发送失败重试次数)
 type NetWorkController struct {
-	Ctx     context.Context
-	ProxURL *url.URL
+	Ctx                context.Context
+	ProxURL            *url.URL
+	CurRequestMessage  string
+	CurResponseMessage string
 	// URL          *url.URL
 	// Request      *http.Request
 	Interface        models.Interface
@@ -331,24 +335,13 @@ func (n *NetWorkController) GetRequest() (request *http.Request, err error) {
 	}
 	request.Header.Set("Content-Type", contentType)
 
-	// 打印信息
-	fmt.Println(strings.Repeat("--", 50))
-	fmt.Println("请求信息：")
-	fmt.Println(strings.Repeat("--", 50))
-	fmt.Println("URL:", request.URL)
-	fmt.Println(strings.Repeat("--", 50))
-	fmt.Println("Header:", request.Header)
-	fmt.Println(strings.Repeat("--", 50))
-	fmt.Println("Body:", request.Body)
-	fmt.Println(strings.Repeat("--", 50))
-
 	return request, nil
 
 }
 
 // Run 网络请求模块运行方法
 func (n *NetWorkController) Run() ResponseJSON {
-
+	time.Sleep(1 * time.Second) // 睡眠1s
 	transport := &http.Transport{Proxy: http.ProxyURL(n.ProxURL)}
 	client := http.Client{Transport: transport}
 
@@ -358,10 +351,26 @@ func (n *NetWorkController) Run() ResponseJSON {
 		err = fmt.Errorf("构造请求错误: %w", err)
 		return ResponseJSON{StatusCode: 500, Message: err.Error()}
 	}
+	// 解析请求信息
+	RequestMessage, err := httputil.DumpRequestOut(request, true)
+	if err != nil {
+		n.CurRequestMessage = "解析请求错误" + err.Error()
+	} else {
+		n.CurRequestMessage = string(RequestMessage)
+	}
+
 	resp, err := client.Do(request)
 	if err != nil {
 		err = fmt.Errorf("发送请求错误: %w", err)
+		n.CurResponseMessage = err.Error()
 		return ResponseJSON{StatusCode: 500, Message: err.Error()}
+	}
+	// 解析响应信息
+	ResponseMessage, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		n.CurResponseMessage = "解析响应错误" + err.Error()
+	} else {
+		n.CurResponseMessage = string(ResponseMessage)
 	}
 
 	respBytes, err := io.ReadAll(resp.Body)
@@ -385,15 +394,6 @@ func (n *NetWorkController) Run() ResponseJSON {
 			return ResponseJSON{StatusCode: 500, Message: err.Error()}
 		}
 	}
-
-	// fmt.Println("[*] 网络池信息")
-	// for key, value := range n.ResponsePool {
-	// 	if key == "0" {
-	// 		fmt.Println("Key: ", key, ", Value: ", value[:30]+"...")
-	// 	} else {
-	// 		fmt.Println("Key: ", key, ", Value: ", value)
-	// 	}
-	// }
 
 	return ResponseJSON{StatusCode: 200, Message: string(respBytes), Data: string(respBytes)}
 

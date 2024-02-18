@@ -4,10 +4,13 @@ import {utils} from '../models';
 import {artlog} from '../models';
 import {api} from '../models';
 import {context} from '../models';
+import {models} from '../models';
 
-export function GetArticleImageProgress(arg1:number):Promise<utils.ResponseJSON>;
+export function GenArticleDetail(arg1:number):Promise<void>;
 
 export function GetLogHistory():Promise<utils.ResponseJSON>;
+
+export function GetRecordID():Promise<utils.ResponseJSON>;
 
 export function InitConfig():Promise<void>;
 
@@ -31,4 +34,6 @@ export function SetProxyURL(arg1:string):Promise<void>;
 
 export function Startup(arg1:context.Context):Promise<void>;
 
-export function UpdateArticleStatus(arg1:number,arg2:any):Promise<void>;
+export function UpdateArticleDetail(arg1:number,arg2:models.Platform):Promise<void>;
+
+export function UpdateInterfaceRecord(arg1:models.InterfaceRecord,arg2:utils.NetWorkController,arg3:models.Platform,arg4:number,arg5:models.Interface):Promise<models.InterfaceRecord>;

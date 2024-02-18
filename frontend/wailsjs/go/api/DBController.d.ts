@@ -11,6 +11,8 @@ export function Connect(arg1:string):Promise<void>;
 
 export function CreateInterface(arg1:models.Interface):Promise<models.Interface>;
 
+export function CreateOrUpdateInterfaceRecord(arg1:models.InterfaceRecord):Promise<models.InterfaceRecord>;
+
 export function CreatePlatform(arg1:Array<models.Platform>):Promise<Array<models.Platform>>;
 
 export function DeleteInterfaces(arg1:Array<models.Interface>):Promise<void>;
@@ -24,6 +26,8 @@ export function GetConfigDir():Promise<string>;
 export function GetConfigFilePath():Promise<string>;
 
 export function GetInterface(arg1:models.Interface):Promise<models.Interface>;
+
+export function GetInterfaceRecords(arg1:{[key: string]: any}):Promise<Array<models.InterfaceRecord>>;
 
 export function GetPlatform(arg1:models.Platform):Promise<models.Platform>;
 

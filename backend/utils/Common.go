@@ -7,6 +7,18 @@ type ResponseJSON struct {
 	Data       interface{} // 返回数据
 }
 
+// 状态枚举
+const (
+	Publishing       string = "发布中"  // 发布中（文章）
+	PublishWating    string = "待发布"  // 待发布（文章）
+	PublishedSuccess string = "发布成功" // 发布成功 （文章）
+	PublishedFailed  string = "发布失败" // 发布失败（文章）
+	RunningSuccess   string = "运行成功" // 运行成功（接口）
+	RunningFailed    string = "运行失败" // 运行失败（接口）
+	Waiting          string = "等待中"  // 警告信息
+	Running          string = "运行中"  // 错误信息
+)
+
 // // CommonUtils 常用工具
 // type CommonUtils struct {
 // 	Ctx context.Context

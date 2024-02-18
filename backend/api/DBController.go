@@ -64,11 +64,25 @@ func (d *DBController) AutoMigrate() (err error) {
 	}
 
 	// 数据库迁移
-	err = d.DB.AutoMigrate(&models.Platform{}, &models.Interface{}, &models.Header{}, &models.Body{}, &models.Query{}, &models.RPath{}, &models.ReplaceMap{})
+	err = d.DB.AutoMigrate(&models.Platform{}, &models.Interface{}, &models.Header{}, &models.Body{}, &models.Query{}, &models.RPath{}, &models.ReplaceMap{}, &models.InterfaceRecord{})
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+// GetInterfaceRecords 获取接口记录
+func (d *DBController) GetInterfaceRecords(query map[string]interface{}) (interfaceRecords []models.InterfaceRecord, err error) {
+	// 检查数据库连接
+	err = d.CheckConnect()
+	if err != nil {
+		return interfaceRecords, err
+	}
+
+	d.DB.Where(query).Preload(clause.Associations).Find(&interfaceRecords)
+
+	return interfaceRecords, err
+
 }
 
 // GetPlatforms 获取平台（批量）
@@ -156,6 +170,18 @@ func (d *DBController) CreateInterface(interfaceInfo models.Interface) (models.I
 		return interfaceInfo, err
 	}
 	return result, nil
+}
+
+// CreateOrUpdateInterfaceRecord 创建或更新接口记录
+func (d *DBController) CreateOrUpdateInterfaceRecord(interfaceRecord models.InterfaceRecord) (models.InterfaceRecord, error) {
+	// 检查数据库连接
+	err := d.CheckConnect()
+	if err != nil {
+		return interfaceRecord, err
+	}
+	d.DB.Save(&interfaceRecord)
+
+	return interfaceRecord, nil
 }
 
 // UpdatePlatform 更新平台(不包括接口)

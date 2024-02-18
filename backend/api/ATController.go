@@ -18,27 +18,40 @@ import (
 
 // ATController 文章控制器
 type ATController struct {
-	ArticleList  []Article     // 文章列表
-	ProxyURL     *url.URL      // 网络代理
-	DBController *DBController // 数据库控制器
+	ArticleList       []Article     // 文章列表
+	ProxyURL          *url.URL      // 网络代理
+	DBController      *DBController // 数据库控制器
+	InterfaceRecordID string        // 记录ID(每运行一次RUN函数生成一个)
 	artlog.Logger
 }
 
 // Article 文章结构体
 type Article struct {
-	Title            string                              // 文章名称
-	Status           string                              // 文章状态（等待中，上传中，完成）
-	MarkdownTool     utils.MarkdownTool                  // Markdown分析工具，分析的文章在这里
-	ImageProgressMap map[string]map[string]ImageProgress // 平台->图片->状态
+	Title         string                          // 文章名称
+	Status        string                          // 文章状态（等待中，上传中，完成）
+	MarkdownTool  utils.MarkdownTool              // Markdown分析工具，分析的文章在这里
+	Progress      float32                         // 运行进度
+	BasicInfo     ArticleBasicInfo                // 文章基本信息
+	PlatformsInfo map[string]*ArticlePlatformInfo // 文章平台信息
 }
 
-// ImageProgress 图片进度
-type ImageProgress struct {
-	PlatformName string // 平台名称
-	ImageName    string // 图片名称
-	UploadURL    string // 上传URL
-	Status       string // 上传状态（待上传，成功，失败，上传中）
-	Message      string // 图片错误信息
+// ArticleBasicInfo 文章基本信息
+type ArticleBasicInfo struct {
+	Title             string   // 文章名称
+	Type              string   // 文章类型
+	ImageNum          int      // 图片数量
+	InterfaceNum      int      // 接口数量
+	InterfaceRecordID string   // 接口记录ID
+	Platforms         []string // 平台名称
+}
+
+// ArticlePlatformInfo 文章平台信息
+type ArticlePlatformInfo struct {
+	Index                  int     // 平台序号
+	InterfaceActualRunNum  int     // 实际接口运行数量
+	InterfacePredictRunNum int     // 预测接口运行数量
+	RunProgress            float32 // 运行进度
+	RunStatus              string  // 运行状态
 }
 
 // NewATController 初始化
@@ -139,6 +152,11 @@ func (a *ATController) GetLogHistory() utils.ResponseJSON {
 	return utils.ResponseJSON{StatusCode: 200, Data: a.History, Message: ""}
 }
 
+// GetRecordID 返回记录ID
+func (a *ATController) GetRecordID() utils.ResponseJSON {
+	return utils.ResponseJSON{StatusCode: 200, Data: a.InterfaceRecordID, Message: ""}
+}
+
 // LoadArticles 加载文章
 func (a *ATController) LoadArticles(filePath string, imagePath string) utils.ResponseJSON {
 
@@ -156,9 +174,9 @@ func (a *ATController) LoadArticles(filePath string, imagePath string) utils.Res
 	for _, file := range files {
 		if path.Ext(file.Name()) == ".md" {
 			article := Article{
-				Title:            file.Name()[:len(file.Name())-3],
-				Status:           "等待中",
-				ImageProgressMap: make(map[string]map[string]ImageProgress),
+				Title:         file.Name()[:len(file.Name())-3],
+				Status:        "等待中",
+				PlatformsInfo: make(map[string]*ArticlePlatformInfo),
 			}
 			// article.MarkdownTool.Startup(a.Ctx) // 设置context，以启用runtime
 
@@ -178,7 +196,7 @@ func (a *ATController) LoadArticles(filePath string, imagePath string) utils.Res
 
 			// 信息传回前端
 			a.Print(artlog.DEBUG, "文章控制器", fmt.Sprintf(`{"fileName":"%s", "filePath": "%s", "imagePath":"%s", "imageNum":"%d"}`, file.Name(), filePath, imagePath, len(article.MarkdownTool.ImagesInfo)))
-
+			a.GenArticleDetail(len(a.ArticleList) - 1) // 加载后生成，该文章的基本信息
 		}
 	}
 
@@ -190,62 +208,92 @@ func (a *ATController) LoadArticles(filePath string, imagePath string) utils.Res
 	return utils.ResponseJSON{StatusCode: 200, Data: a.ArticleList, Message: ""}
 }
 
-// GetArticleImageProgress 获取文章的图片信息列表
-func (a *ATController) GetArticleImageProgress(articleIndex int) utils.ResponseJSON {
-	// 查询启用的平台，返回平台列表
-	// 获取文章
-	article := a.ArticleList[articleIndex]
-	// 获取平台
+// GenArticleDetail 获取文章基本的信息，用作展示
+func (a *ATController) GenArticleDetail(articleIndex int) {
+	article := &a.ArticleList[articleIndex]
 
-	platforms, err := a.DBController.GetPlatforms(map[string]interface{}{"Disabled": false})
-	if err != nil {
-		return utils.ResponseJSON{StatusCode: 500, Data: nil, Message: fmt.Sprintf("GetArticleImageProgress error: %s", err.Error())}
-	}
+	article.BasicInfo = ArticleBasicInfo{} // 清空基本信息
 
-	// 根据启用的平台，和加载的文章生成一个文章的图片进度列表,并根据文章的ImageProgressMap，更新文章状态
-	imageProgressList := []ImageProgress{}
-	for _, imageInfo := range article.MarkdownTool.ImagesInfo {
-		for _, platform := range platforms {
-			satus := article.ImageProgressMap[platform.Name][imageInfo.URL].Status
-			if article.ImageProgressMap[platform.Name][imageInfo.URL].Status == "" {
-				satus = "等待中"
+	// 基本信息
+	article.BasicInfo.Title = article.Title
+	article.BasicInfo.ImageNum = len(article.MarkdownTool.ImagesInfo)
+	article.BasicInfo.Type = "MarkDown"
+	article.BasicInfo.InterfaceRecordID = a.InterfaceRecordID
+
+	// 平台信息
+	platforms, _ := a.DBController.GetPlatforms(map[string]interface{}{"Disabled": false})
+
+	for index, platform := range platforms {
+		fmt.Println("platform.Name:", platform.Name)
+		// 基础信息中添加平台名称
+		article.BasicInfo.Platforms = append(article.BasicInfo.Platforms, platform.Name)
+
+		// 收集平台信息
+		// platformInfo := &ArticlePlatformInfo{}
+		article.PlatformsInfo[platform.Name] = &ArticlePlatformInfo{}
+		article.PlatformsInfo[platform.Name].Index = index
+		article.PlatformsInfo[platform.Name].RunStatus = utils.PublishWating
+		for _, interfacesInfo := range platform.Interfaces {
+			// 如果为组，则遍历子接口
+			if interfacesInfo.IsGroup {
+				// 计算接口组需要运行的次数
+				if interfacesInfo.Type == "images" {
+					article.PlatformsInfo[platform.Name].InterfacePredictRunNum += len(interfacesInfo.Children) * len(article.MarkdownTool.ImagesInfo)
+				} else {
+					article.PlatformsInfo[platform.Name].InterfacePredictRunNum = len(interfacesInfo.Children)
+				}
+			} else { // 如果不为组，则加入列表
+				// 计算接口需要运行的次数
+				if interfacesInfo.Type == "images" {
+					article.PlatformsInfo[platform.Name].InterfacePredictRunNum += len(article.MarkdownTool.ImagesInfo)
+				} else {
+					article.PlatformsInfo[platform.Name].InterfacePredictRunNum++
+				}
 			}
-			imageProgressList = append(imageProgressList, ImageProgress{
-				PlatformName: platform.Name,
-				ImageName:    imageInfo.URL,
-				UploadURL:    article.ImageProgressMap[platform.Name][imageInfo.URL].UploadURL,
-				Status:       satus,
-				Message:      article.ImageProgressMap[platform.Name][imageInfo.URL].Message,
-			})
+
 		}
+		article.BasicInfo.InterfaceNum += article.PlatformsInfo[platform.Name].InterfacePredictRunNum
 
+		// article.PlatformsInfo[platform.Name] = platformInfo
 	}
-
-	return utils.ResponseJSON{StatusCode: 200, Data: imageProgressList, Message: ""}
-
 }
 
-// UpdateArticleStatus 更新文章状态
-// func (a *ATController) UpdateArticleStatus(articleIndex int, imageProgress ImageProgress) {
-func (a *ATController) UpdateArticleStatus(articleIndex int, data interface{}) {
-	// 更新文章Map中图片的状态
-	imageProgress, ok := data.(ImageProgress)
-	if ok {
-		// 获取子Map
-		subMap := a.ArticleList[articleIndex].ImageProgressMap[imageProgress.PlatformName]
-		if len(subMap) == 0 {
-			subMap = map[string]ImageProgress{}
+// UpdateArticleDetail 更新文章详情
+func (a *ATController) UpdateArticleDetail(articleIndex int, platform models.Platform) {
+	if !platform.Disabled {
+		platformInfo := a.ArticleList[articleIndex].PlatformsInfo[platform.Name]
+		a.ArticleList[articleIndex].PlatformsInfo[platform.Name].RunProgress = float32(platformInfo.InterfaceActualRunNum+1) / float32(platformInfo.InterfacePredictRunNum+1) * 100 // 分子分母同时加一，防止分母为0的情况
+
+		// 更新
+		a.ArticleList[articleIndex].Progress = 0
+		for platformName := range a.ArticleList[articleIndex].PlatformsInfo {
+			a.ArticleList[articleIndex].Progress += float32(a.ArticleList[articleIndex].PlatformsInfo[platformName].InterfaceActualRunNum)
 		}
-		// 更新子Map
-		subMap[imageProgress.ImageName] = imageProgress
-		a.ArticleList[articleIndex].ImageProgressMap[imageProgress.PlatformName] = subMap
+		a.ArticleList[articleIndex].Progress = a.ArticleList[articleIndex].Progress / float32(a.ArticleList[articleIndex].BasicInfo.InterfaceNum) * 100
 	}
-	// 更新完后通知前端
-	response := a.GetArticleImageProgress(articleIndex)
-	if response.StatusCode != 200 {
-		a.Print(artlog.ERROR, "文章控制器", response.Message)
+
+	runtime.EventsEmit(a.Ctx, "UpdateArticleDetail", articleIndex, a.ArticleList[articleIndex].BasicInfo, a.ArticleList[articleIndex].PlatformsInfo, a.ArticleList[articleIndex].Status, a.ArticleList[articleIndex].Progress)
+}
+
+// UpdateInterfaceRecord 更新接口记录
+func (a *ATController) UpdateInterfaceRecord(interfaceRecord models.InterfaceRecord, netController *utils.NetWorkController, platform models.Platform, articleIndex int, interfaceInfo models.Interface) (models.InterfaceRecord, error) {
+	interfaceRecord.RecordID = a.InterfaceRecordID
+	interfaceRecord.ArticleName = a.ArticleList[articleIndex].Title
+	interfaceRecord.PlatformName = platform.Name
+	interfaceRecord.Serial = interfaceInfo.Serial
+	interfaceRecord.Name = interfaceInfo.Name
+	interfaceRecord.RequestURL = interfaceInfo.RequestURL
+	interfaceRecord.RequestMessage = netController.CurRequestMessage
+	interfaceRecord.ResponseMessage = netController.CurResponseMessage
+
+	interfaceRecord, err := a.DBController.CreateOrUpdateInterfaceRecord(interfaceRecord)
+	if err != nil {
+		interfaceRecord.Tag = "记录创建失败"
+		return interfaceRecord, err
 	}
-	runtime.EventsEmit(a.Ctx, "UpdateArticleStatus", articleIndex, response.Data, a.ArticleList[articleIndex].Status)
+
+	runtime.EventsEmit(a.Ctx, "UpdateInterfaceRecord", a.InterfaceRecordID)
+	return interfaceRecord, nil
 }
 
 func (a *ATController) runInterfaces(netController *utils.NetWorkController, platform models.Platform, articleIndex int, interfaces []models.Interface, interfaceType string) (err error) {
@@ -261,10 +309,14 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 					tmpInterfaceInfo.RequestBody = append(interfaceInfo.RequestBody, models.Body{IsFile: true, FileName: imageInfo.URL, Key: "file", Value: string(imageInfo.Image)})
 				}
 				netController.SetInterface(tmpInterfaceInfo)
-
+				// 记录接口运行
+				tmpRecord := models.InterfaceRecord{Tag: fmt.Sprint(index + 1), Status: utils.Running}
+				tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, tmpInterfaceInfo)
+				a.ArticleList[articleIndex].PlatformsInfo[platform.Name].InterfaceActualRunNum++ // 更新运行接口数
+				a.UpdateArticleDetail(articleIndex, platform)                                    // 更新文章详情
 				response := netController.Run()
+
 				if response.StatusCode == 200 {
-					responseStatus := "上传成功"
 					a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
 						platform.Name,
 						tmpInterfaceInfo.Name, tmpInterfaceInfo.RequestURL,
@@ -280,33 +332,24 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 
 					article.MarkdownTool.ImagesInfo[index].UploadURL = imgURL // 更新图片链接
 
-					// 此处需要判断上传状态
-					imageProgress := ImageProgress{
-						PlatformName: platform.Name,
-						ImageName:    article.MarkdownTool.ImagesInfo[index].URL,       // 图片名称
-						UploadURL:    article.MarkdownTool.ImagesInfo[index].UploadURL, // 图片上传URL
-						Status:       responseStatus,
-						Message:      response.Message,
-					}
+					// 更新接口运行状态
+					tmpRecord.Status = utils.RunningSuccess
+					tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, tmpInterfaceInfo)
+
 					// 更新图片状态
-					a.UpdateArticleStatus(articleIndex, imageProgress)
+					// a.UpdateArticleStatus(articleIndex, imageProgress)
 
 				} else {
-					responseStatus := "上传失败"
 					a.Print(artlog.ERROR, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
 						platform.Name,
 						tmpInterfaceInfo.Name, tmpInterfaceInfo.RequestURL,
 						strconv.Quote(response.Message)))
 
-					imageProgress := ImageProgress{
-						PlatformName: platform.Name,
-						ImageName:    article.MarkdownTool.ImagesInfo[index].URL, // 图片名称
-						UploadURL:    response.Message,                           // 图片上传URL
-						Status:       responseStatus,
-						Message:      response.Message,
-					}
 					// 更新图片状态
-					a.UpdateArticleStatus(articleIndex, imageProgress)
+					// a.UpdateArticleStatus(articleIndex, imageProgress)
+					// 更新接口运行状态
+					tmpRecord.Status = utils.RunningFailed
+					tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, tmpInterfaceInfo)
 					err = fmt.Errorf(response.Message)
 					// return fmt.Errorf(response.Message)
 				}
@@ -325,20 +368,29 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 		netController.ResponsePoolType["0"] = "JSON" // 设置接口返回类型为JSON
 	} else {
 		// 遍历每个接口并运行（一般不是images，只传一个接口过来）
-		for _, interfaceInfo := range interfaces {
+		for index, interfaceInfo := range interfaces {
 			netController.SetInterface(interfaceInfo)
-			// netController.Run()
+
+			tmpRecord := models.InterfaceRecord{Tag: fmt.Sprint(index + 1), Status: utils.Running}
+			tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, interfaceInfo)
+			a.ArticleList[articleIndex].PlatformsInfo[platform.Name].InterfaceActualRunNum++ // 更新运行接口数
+			a.UpdateArticleDetail(articleIndex, platform)                                    // 更新文章详情
 			response := netController.Run()
 			if response.StatusCode == 200 {
 				a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
 					platform.Name,
 					interfaceInfo.Name, interfaceInfo.RequestURL,
 					strconv.Quote(netController.ResponsePool[interfaceInfo.Serial])))
+				// 更新接口运行状态
+				tmpRecord.Status = utils.RunningSuccess
+				tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, interfaceInfo)
 			} else {
 				a.Print(artlog.ERROR, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
 					platform.Name,
 					interfaceInfo.Name, interfaceInfo.RequestURL,
 					strconv.Quote((response.Message))))
+				tmpRecord.Status = utils.RunningFailed
+				tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, interfaceInfo)
 				err = fmt.Errorf(response.Message)
 				// return fmt.Errorf(response.Message)
 			}
@@ -366,7 +418,9 @@ func (a *ATController) SetProxyURL(proxURL string) {
 
 // Run 运行
 func (a *ATController) Run() utils.ResponseJSON {
-	// 查询启用的平台，返回平台列表
+	// 每次运行生成一个记录ID
+	a.InterfaceRecordID = models.GenerateRandomKey(8)
+	// 查询启用的平台，返回平台列表TODO（后续可修改为查询文章对应平台）
 	platforms, err := a.DBController.GetPlatforms(map[string]interface{}{"Disabled": false})
 	if err != nil {
 		errMsg := fmt.Errorf("平台获取错误: %w", err).Error()
@@ -376,19 +430,22 @@ func (a *ATController) Run() utils.ResponseJSON {
 
 	// 遍历文章列表
 	for articleIndex, aritcle := range a.ArticleList {
-		// a.Print(artlog.INFO, "文章控制器", fmt.Sprintf("任务开始: %s", aritcle.Title))
+		a.GenArticleDetail(articleIndex)                      // 运行的时候，重置基本信息
+		a.ArticleList[articleIndex].Status = utils.Publishing // 更新文章状态
+
 		// 遍历平台列表
-		a.ArticleList[articleIndex].Status = "处理中"
-		a.UpdateArticleStatus(articleIndex, a.ArticleList[articleIndex].Status)
+		platformUploadSuccessCount := 0 // 平台成功上传计数
 		for _, platform := range platforms {
-			err = a.ArticleList[articleIndex].MarkdownTool.AnalyzeMarkdown() // 每个平台，重新分析markdown数据（重置MaikdownLines状态, imagesInfo状态）
+			// 获取文章对应平台信息
+			a.ArticleList[articleIndex].PlatformsInfo[platform.Name].RunStatus = utils.Running // 更新平台状态
+			a.UpdateArticleDetail(articleIndex, platform)                                      // 更新平台状态
+			err = a.ArticleList[articleIndex].MarkdownTool.AnalyzeMarkdown()                   // 每个平台，重新分析markdown数据（重置MaikdownLines状态, imagesInfo状态）
 			if err != nil {
 				errMsg := fmt.Errorf("Markdown文章分析错误[%s]: %w", aritcle.Title, err).Error()
 				a.Print(artlog.ERROR, "文章控制器", errMsg)
-				a.ArticleList[articleIndex].Status = "上传失败"
-				a.UpdateArticleStatus(articleIndex, a.ArticleList[articleIndex].Status)
-				continue // 如果报错则开始下一个平台
-				// return utils.ResponseJSON{StatusCode: 500, Data: nil, Message: errMsg}
+				a.ArticleList[articleIndex].Status = utils.PublishedFailed // 更新文章状态
+				a.UpdateArticleDetail(articleIndex, platform)              // 更新文章状态
+				continue                                                   // 如果报错则开始下一个平台
 			}
 			// 每一个平台单独一个网络控制器
 			netController := utils.NewNetWorkController()
@@ -402,50 +459,51 @@ func (a *ATController) Run() utils.ResponseJSON {
 			if err != nil {
 				errMsg := fmt.Errorf("文章信息转失败[%s]: %w", aritcle.Title, err).Error()
 				a.Print(artlog.ERROR, "文章控制器", errMsg)
-				a.ArticleList[articleIndex].Status = "上传失败"
-				a.UpdateArticleStatus(articleIndex, a.ArticleList[articleIndex].Status)
-				continue // 如果报错则开始下一个平台
-				// return utils.ResponseJSON{StatusCode: 500, Data: nil, Message: errMsg}
+				a.ArticleList[articleIndex].Status = utils.PublishedFailed // 更新文章状态
+				a.UpdateArticleDetail(articleIndex, platform)              // 更新文章状态
+				continue                                                   // 如果报错则开始下一个平台
 			}
 			netController.ResponsePool["0"] = string(data)
 			netController.ResponsePoolType["0"] = "JSON" // 设置接口返回类型为JSON
 			a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "articleName":"%s", "content":%s}`, platform.Name, aritcle.Title, string(data)))
 
 			// 遍历接口
-			// 组执行： 判断接口是否为图片->循环执行children， 否->执行children
-			// 接口执行： 判断接口是否为图片->循环执行接口， 否->执行接口
-			for index, interfaceInfo := range platform.Interfaces {
-				// 判断接口是否为组
+			var interfaceErr error // 查看遍历接口时是否有接口出错
+			for _, interfaceInfo := range platform.Interfaces {
+				// 判断接口是否为组（组执行： 判断接口是否为图片->循环执行children， 否->执行children）
 				if interfaceInfo.IsGroup {
 					// 如果为组则执行子接口列表
-					err = a.runInterfaces(netController, platform, articleIndex, interfaceInfo.Children, interfaceInfo.Type)
-					if err != nil {
+					interfaceErr = a.runInterfaces(netController, platform, articleIndex, interfaceInfo.Children, interfaceInfo.Type)
+					if interfaceErr != nil {
 						errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, err).Error()
 						a.Print(artlog.ERROR, "文章控制器", errMsg)
-						a.ArticleList[articleIndex].Status = "上传失败"
-						break // 如果报错则跳出
-						// return utils.ResponseJSON{StatusCode: 500, Data: nil, Message: errMsg}
 					}
 				} else {
-					// 如果不为组则执行接口
-					err = a.runInterfaces(netController, platform, articleIndex, []models.Interface{interfaceInfo}, interfaceInfo.Type)
-					if err != nil {
+					// 如果不为组则执行接口（接口执行： 判断接口是否为图片->循环执行接口， 否->执行接口）
+					interfaceErr = a.runInterfaces(netController, platform, articleIndex, []models.Interface{interfaceInfo}, interfaceInfo.Type)
+					if interfaceErr != nil {
 						errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, err).Error()
 						a.Print(artlog.ERROR, "文章控制器", errMsg)
-						a.ArticleList[articleIndex].Status = "上传失败"
-						break // 如果报错则跳出
-						// return utils.ResponseJSON{StatusCode: 500, Data: nil, Message: errMsg}
 					}
 				}
-				// 所有接口成功执行后返回上传成功
-				if index == (len(platform.Interfaces) - 1) {
-					a.ArticleList[articleIndex].Status = "运行完成"
-				}
-
 			}
-			a.UpdateArticleStatus(articleIndex, a.ArticleList[articleIndex].Status)
-			// a.Print(artlog.INFO, "文章控制器", fmt.Sprintf("任务结束: %s", aritcle.Title))
+			if interfaceErr != nil { // 若遍历接口时有报错，则平台运行失败
+				a.ArticleList[articleIndex].PlatformsInfo[platform.Name].RunStatus = utils.PublishedFailed // 更新平台状态
+			} else { // 若不报错则上传成功，上传成功的平台计数+1
+				a.ArticleList[articleIndex].PlatformsInfo[platform.Name].RunStatus = utils.PublishedSuccess // 更新平台状态
+				platformUploadSuccessCount++
+			}
+			a.UpdateArticleDetail(articleIndex, platform) // 更新平台状态
 		}
+
+		// 遍历完所有平台后更新文章状态
+		if platformUploadSuccessCount == len(platforms) {
+			a.ArticleList[articleIndex].Status = utils.PublishedSuccess
+		} else {
+			a.ArticleList[articleIndex].Status = utils.PublishedFailed
+		}
+
+		a.UpdateArticleDetail(articleIndex, models.Platform{Disabled: true}) // 更新文章详情
 
 	}
 	// 运行结束

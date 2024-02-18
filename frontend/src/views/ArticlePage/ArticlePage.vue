@@ -9,7 +9,7 @@
     <div style="height: 500px;">
       <t-table
           :columns="columns"
-          :data="articleStore.tableData"
+          :data="articleStore.articleList"
           row-key="Index">
           <template #operation="{row}">
             <t-button  
@@ -32,29 +32,27 @@
 <script setup lang="jsx">
 import {onMounted, ref} from "vue";
 import ArticleDetail from "./ArticleDetail.vue";
-import {GetArticleImageProgress, LoadArticles, OpenDir, Run} from "@/wailsjs/go/api/ATController"
+import { LoadArticles, OpenDir, Run} from "@/wailsjs/go/api/ATController"
 import {EventsOn} from "@/wailsjs/runtime/runtime";
 import { MessagePlugin } from "tdesign-vue-next";
-import { LoadJSONFile } from "@/wailsjs/go/api/DBController";
-import {useArticleStore, useArticleDetailStore} from "@/src/store/article"
+import {useArticleStore, statusNameListMap} from "@/src/store/article"
 import { useConfigStore } from "@/src/store/config";
 
 const configStore = useConfigStore()
 const articleStore = useArticleStore()
-const articleDetailStore = useArticleDetailStore()
 
-const statusNameListMap = {
-  "运行完成": {  theme: 'success', label: "运行完成"},
-  "上传成功": {  theme: 'success', label: "上传成功"},
-  "上传失败": { theme: 'danger', label: "上传失败" },
-  "处理中": { theme: 'primary', label: "处理中" },
-  "等待中": { theme: 'default', label: "等待中" },
-};
+// const statusNameListMap = {
+//   "运行完成": {  theme: 'success', label: "运行完成"},
+//   "上传成功": {  theme: 'success', label: "上传成功"},
+//   "上传失败": { theme: 'danger', label: "上传失败" },
+//   "处理中": { theme: 'primary', label: "处理中" },
+//   "等待中": { theme: 'default', label: "等待中" },
+// };
 
 const columns = ref([
   {colKey: 'Index', title: '序号', width: 60, align: 'center'},
   {colKey: 'Title', title: '文章名称', ellipsisTitle: true},
-  {colKey: 'Progress', title: '图片上传进度', width: 240,
+  {colKey: 'Progress', title: '上传进度', width: 240,
     cell: (h, { row}) => {
     return (<t-progress theme="line" percentage={row.Progress} />)
   }},
@@ -96,7 +94,7 @@ function loadData() {
           for (let i = 0; i < response.Data.length; i++) {
             response.Data[i]["Index"] = i+1
           }
-          articleStore.tableData = response.Data
+          articleStore.articleList = response.Data
         } else {
           MessagePlugin.error("加载文章错误: "+response.Message)
         }
@@ -112,47 +110,33 @@ function loadData() {
 }
 
 
-// 刷新文章进度
-function RefreshArticleProgress(articleIndex, articleStatus) {
-  var imageProgressList = articleStore.imageProgressMap[articleIndex]
-  var article = articleStore.tableData[articleIndex]
-  var imageCount = imageProgressList.length
-  var imageComplete = imageProgressList.filter(item => item.Status === "上传成功" ||  item.Status === "上传失败").length
-  article.Progress = parseFloat((imageComplete / imageCount * 100).toFixed(2)) 
-
-  // 更新文章状态
-  article.Status = articleStatus
-  console.log("article", article)
-
-}
-
 // 加载文章详情
 function loadArticleDetail(article) {
-  // 更新文章详情的Index
-  GetArticleImageProgress(article.Index-1).then(response => {
-    if (response.StatusCode == 200) {
-      // 更新文章字典上传进度
-      articleStore.imageProgressMap[article.Index-1] = response.Data
-      // 更新文章详情页
-      articleDetailStore.article.title = article.Title + "-上传进度"
-      // articleDetailStore.imageProgressList = response.Data == null ? []:response.Data
-      articleDetailStore.imageProgressList = response.Data 
-      // 打开文章详情弹窗
-      articleDetailStore.visible = true
-    } else {
-      MessagePlugin.error(response.Message)
-    }
-  })
+  // 获取文章详情
+
+  console.log("article", article)
+  articleStore.articleDetailIndex = article.Index - 1
+  articleStore.articleDetailBasicInfo = article.BasicInfo
+  articleStore.articleDetailBasicInfo.Status = article.Status
+  articleStore.articleDetailPlatformsInfo = article.PlatformsInfo
+
+  console.log("articleDetailBasicInfo", articleStore.articleDetailBasicInfo)
+
+  articleStore.articleDetailVisible = true
 }
 
-EventsOn("UpdateArticleStatus", async (articleIndex, imageProgressList, articleStatus)=>{
-  // 更新文章Map
-  articleStore.imageProgressMap[articleIndex] = imageProgressList
-  // articleStore.imageProgressMap[articleIndex] = imageProgressList == null ? []:imageProgressList
-  // 更新文章详情
-  articleDetailStore.imageProgressList = imageProgressList
-  // 刷新文章进度
-  RefreshArticleProgress(articleIndex, articleStatus)
+
+EventsOn("UpdateArticleDetail", async (articleIndex, BasicInfo, PlatformsInfo, Status, Progress)=>{
+  // 更新文章列表中的状态
+  articleStore.articleList[articleIndex].BasicInfo = BasicInfo  // 更新基础信息
+  articleStore.articleList[articleIndex].PlatformsInfo = PlatformsInfo  // 更新平台进度信息
+  articleStore.articleList[articleIndex].Status = Status  // 更新文章状态
+  articleStore.articleList[articleIndex].Progress = parseFloat(Progress).toFixed(2)  // 更新文章进度
+
+  // 同步更新文章详情中的状态
+  articleStore.articleDetailBasicInfo = BasicInfo
+  articleStore.articleDetailBasicInfo.Status  = Status
+  articleStore.articleDetailPlatformsInfo = PlatformsInfo
 })
 
 

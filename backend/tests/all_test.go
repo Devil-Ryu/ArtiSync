@@ -5,6 +5,7 @@ import (
 	"ArtiSync/backend/models"
 	"ArtiSync/backend/utils"
 	"fmt"
+	"net/url"
 	"testing"
 	"time"
 )
@@ -36,14 +37,16 @@ func TestController(t *testing.T) {
 
 func TestNetworkController(t *testing.T) {
 	controller := api.NewDBController()
-	controller.Connect("..//models/test.db")
+	controller.Connect("/Users/ryu/Documents/test.db")
 
-	platform, _ := controller.GetPlatform(models.Platform{ID: 26})
+	platform, _ := controller.GetPlatform(models.Platform{ID: 2})
 	fmt.Println("platform", platform.Name)
-	fmt.Println("platform", platform.Interfaces[2].Name)
+	fmt.Println("platform", platform.Interfaces[1].Name)
 
 	netController := utils.NewNetWorkController()
-	netController.SetInterface(platform.Interfaces[2])
+	tmp, _ := url.Parse("http://127.0.0.1:8080")
+	netController.SetProxyURL(tmp)
+	netController.SetInterface(platform.Interfaces[1])
 	r := netController.Run()
 	fmt.Println("response: ", r)
 
@@ -64,4 +67,18 @@ func TestReplaceMap(t *testing.T) {
 	dbController.UpdatePlatform(platform)
 	// dbController.DeletePlatforms([]models.Platform{platform})
 
+}
+
+func TestDB(t *testing.T) {
+	dbController := api.NewDBController()
+	dbController.Connect("/Users/ryu/Documents/test.db")
+
+	tmp := map[string]interface{}{
+		"record_id":     "VGIs83uE",
+		"platform_name": "MYBLOG",
+		"serial":        "sW5OnfAB",
+	}
+	test, _ := dbController.GetInterfaceRecords(tmp)
+
+	fmt.Println(test)
 }

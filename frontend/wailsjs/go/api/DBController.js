@@ -18,6 +18,10 @@ export function CreateInterface(arg1) {
   return window['go']['api']['DBController']['CreateInterface'](arg1);
 }
 
+export function CreateOrUpdateInterfaceRecord(arg1) {
+  return window['go']['api']['DBController']['CreateOrUpdateInterfaceRecord'](arg1);
+}
+
 export function CreatePlatform(arg1) {
   return window['go']['api']['DBController']['CreatePlatform'](arg1);
 }
@@ -44,6 +48,10 @@ export function GetConfigFilePath() {
 
 export function GetInterface(arg1) {
   return window['go']['api']['DBController']['GetInterface'](arg1);
+}
+
+export function GetInterfaceRecords(arg1) {
+  return window['go']['api']['DBController']['GetInterfaceRecords'](arg1);
 }
 
 export function GetPlatform(arg1) {

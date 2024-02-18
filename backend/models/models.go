@@ -96,10 +96,27 @@ type Body struct {
 	Value       string // 值
 }
 
+// InterfaceRecord 接口运行记录
+type InterfaceRecord struct {
+	ID              uint `gorm:"primaryKey"`
+	DateTime        string
+	RecordID        string // 记录ID（每次运行生成一个记录ID，用于分辨是那一次批量运行的记录）
+	ArticleName     string // 文章名称
+	PlatformName    string // 平台名称
+	Serial          string // 接口编号
+	Name            string // 接口名称
+	RequestURL      string //  接口地址（入参）
+	RequestMessage  string `gorm:"type:text"` // 请求报文
+	ResponseMessage string `gorm:"type:text"` // 响应报文
+	Status          string // 运行状态
+	Tag             string // 标签
+
+}
+
 // BeforeCreate 接口创建前
 func (i *Interface) BeforeCreate(tx *gorm.DB) (err error) {
 	if i.Serial == "" {
-		i.Serial = generateRandomKey(8)
+		i.Serial = GenerateRandomKey(8)
 	}
 	return
 }
@@ -154,7 +171,7 @@ func (s StringList) Value() (driver.Value, error) {
 //		}
 //		return
 //	}
-func generateRandomKey(length int) string {
+func GenerateRandomKey(length int) string {
 	// 可以根据需要修改字符集
 	charSet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 

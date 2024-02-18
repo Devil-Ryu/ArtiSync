@@ -7,7 +7,7 @@ export const usePlatformStore = defineStore('platform', ()=>{
     return {platforms}
 })
 
-// 文章详情组件参数
+// 接口详情组件参数
 export const useInterfacesStore = defineStore('interface', ()=>{
     const visible = ref(false)
     const title = ref("接口配置")
@@ -84,6 +84,15 @@ export const useInterfacesStore = defineStore('interface', ()=>{
       return result
     })
     return {visible, title, platform, interfaces, options, SerialOptions}
+})
+
+// 接口记录参数
+export const useInterfaceRecordsStore = defineStore('interfaceRecords', () => {
+  const records = ref([])
+
+  return {
+      records
+  }
 })
 
 // 批量导入组件
