@@ -88,10 +88,26 @@ export const useInterfacesStore = defineStore('interface', ()=>{
 
 // 接口记录参数
 export const useInterfaceRecordsStore = defineStore('interfaceRecords', () => {
-  const records = ref([])
-
+  const records = ref([])  // 记录列表
+  const detailDialogVisible = ref(false)  // 是否显示
+  const curRecord = ref({
+    ArticleName: "初次渲染模板",
+    DateTime: "2024-02-18 17:43:21",
+    ID: 795,
+    Name: "上传图片",
+    PlatformName: "XXXX",
+    RecordID: "ix83sLg7",
+    RequestMessage: "POST /api/dddd/ccc HTTP/1.1\r\nHost: test.dddd.cc\r\nUser-Agent: Go-http-client/1.1\r\nContent-Length: 213415\r\nContent-Type…",
+    RequestURL: "https://test.dddd.cc/",
+    ResponseMessage: "发送请求错误:XXXXXXX\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1",
+    Serial: "WI7Unljn",
+    Status: "运行失败",
+    Tag: "1",
+  })
   return {
-      records
+      records,
+      detailDialogVisible,
+      curRecord,
   }
 })
 

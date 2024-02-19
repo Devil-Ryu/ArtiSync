@@ -15,8 +15,8 @@ const (
 	PublishedFailed  string = "发布失败" // 发布失败（文章）
 	RunningSuccess   string = "运行成功" // 运行成功（接口）
 	RunningFailed    string = "运行失败" // 运行失败（接口）
-	Waiting          string = "等待中"  // 警告信息
-	Running          string = "运行中"  // 错误信息
+	Waiting          string = "等待中"  // 等待中
+	Running          string = "运行中"  // 运行中
 )
 
 // // CommonUtils 常用工具

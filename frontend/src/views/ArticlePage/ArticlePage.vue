@@ -19,7 +19,6 @@
               @click="loadArticleDetail(row)">
               详情
             </t-button>
-            
           </template>
       </t-table>
     </div>
@@ -37,7 +36,9 @@ import {EventsOn} from "@/wailsjs/runtime/runtime";
 import { MessagePlugin } from "tdesign-vue-next";
 import {useArticleStore, statusNameListMap} from "@/src/store/article"
 import { useConfigStore } from "@/src/store/config";
-
+import { useInterfaceRecordsStore } from "@/src/store/platform";
+import RecordDetailDialog from "../Components/RecordDetailDialog/RecordDetailDialog.vue";
+const interfaceRecordsStore = useInterfaceRecordsStore()
 const configStore = useConfigStore()
 const articleStore = useArticleStore()
 

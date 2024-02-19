@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"math/rand"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -118,6 +119,12 @@ func (i *Interface) BeforeCreate(tx *gorm.DB) (err error) {
 	if i.Serial == "" {
 		i.Serial = GenerateRandomKey(8)
 	}
+	return
+}
+
+// BeforeCreate 创建InterfaceRecord时插入时间
+func (intRecord *InterfaceRecord) BeforeCreate(tx *gorm.DB) (err error) {
+	intRecord.DateTime = time.Now().Format("2006-01-02 15:04:05")
 	return
 }
 
