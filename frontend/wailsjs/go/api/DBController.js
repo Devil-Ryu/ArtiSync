@@ -70,6 +70,10 @@ export function LoadJSONFile(arg1) {
   return window['go']['api']['DBController']['LoadJSONFile'](arg1);
 }
 
+export function QueryInterfaceRecords(arg1, arg2, arg3) {
+  return window['go']['api']['DBController']['QueryInterfaceRecords'](arg1, arg2, arg3);
+}
+
 export function SaveJSONFile(arg1, arg2) {
   return window['go']['api']['DBController']['SaveJSONFile'](arg1, arg2);
 }

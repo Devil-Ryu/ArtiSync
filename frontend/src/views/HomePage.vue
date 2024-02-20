@@ -33,6 +33,12 @@
             </template>
             平台管理
           </t-menu-item>
+          <t-menu-item value="records" to="/records">
+            <template #icon>
+              <ControlPlatformIcon />
+            </template>
+            接口记录
+          </t-menu-item>
           <t-menu-item value="logs" to="/logs">
             <template #icon>
               <NotificationIcon />

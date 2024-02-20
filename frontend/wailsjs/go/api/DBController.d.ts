@@ -37,6 +37,8 @@ export function ImportPlatform(arg1:string):Promise<void>;
 
 export function LoadJSONFile(arg1:string):Promise<{[key: string]: any}>;
 
+export function QueryInterfaceRecords(arg1:{[key: string]: any},arg2:number,arg3:number):Promise<{[key: string]: any}>;
+
 export function SaveJSONFile(arg1:string,arg2:{[key: string]: any}):Promise<void>;
 
 export function Startup(arg1:context.Context):Promise<void>;

@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -71,6 +72,71 @@ func (d *DBController) AutoMigrate() (err error) {
 	return nil
 }
 
+// QueryInterfaceRecords 查询接口记录
+func (d *DBController) QueryInterfaceRecords(query map[string]interface{}, pageNum int, pageSize int) (map[string]interface{}, error) {
+	// 给页面大小赋初始值
+	if pageNum == 0 {
+		pageNum = 1
+	}
+	if pageSize == 0 {
+		pageSize = 20
+	}
+
+	queryList := []string{}
+	queryParams := []interface{}{}
+
+	for key, value := range query {
+		// 判断该value值是否通过参数校验
+		switch key {
+		case "record_id":
+			tmp, ok := value.(string)
+			if ok && tmp != "" {
+				appendQuery(&queryList, &queryParams, "record_id = ?", tmp)
+			}
+		case "date_time":
+			tmp, ok := value.([]string)
+			tmpList := []interface{}{}
+			for _, item := range tmp {
+				tmpList = append(tmpList, item)
+			}
+			if ok && len(tmp) != 0 {
+				appendQuery(&queryList, &queryParams, "date_time between ? and ?", tmpList...)
+			}
+		case "platform_name":
+			tmp, ok := value.([]string)
+			if ok && len(tmp) != 0 {
+				appendQuery(&queryList, &queryParams, "platform_name in ?", tmp)
+			}
+		case "status":
+			tmp, ok := value.([]string)
+			if ok && len(tmp) != 0 {
+				appendQuery(&queryList, &queryParams, "status in ?", tmp)
+			}
+		case "tag":
+			tmp, ok := value.(string)
+			if ok && tmp != "" {
+				appendQuery(&queryList, &queryParams, "tag = ?", tmp)
+			}
+		}
+
+	}
+
+	var result []models.InterfaceRecord
+
+	querySQL := strings.Join(queryList, " and ")
+	totalRows := d.DB.Where(querySQL, queryParams...).Find(&result).RowsAffected // 获取总行数
+	d.DB.Where(querySQL, queryParams...).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&result)
+
+	resultMap := map[string]interface{}{
+		"result":    result,
+		"pageNum":   pageNum,
+		"pageSize":  pageSize,
+		"totalRows": totalRows,
+	}
+	return resultMap, nil
+
+}
+
 // GetInterfaceRecords 获取接口记录
 func (d *DBController) GetInterfaceRecords(query map[string]interface{}) (interfaceRecords []models.InterfaceRecord, err error) {
 	// 检查数据库连接
@@ -83,6 +149,11 @@ func (d *DBController) GetInterfaceRecords(query map[string]interface{}) (interf
 
 	return interfaceRecords, err
 
+}
+
+func appendQuery(queryList *[]string, queryParams *[]interface{}, querySQL string, value ...interface{}) {
+	*queryList = append(*queryList, querySQL)
+	*queryParams = append(*queryParams, value...)
 }
 
 // GetPlatforms 获取平台（批量）

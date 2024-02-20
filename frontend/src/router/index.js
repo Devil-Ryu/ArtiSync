@@ -30,6 +30,14 @@ const routes = [
     }
   },
   {
+    path: "/records",
+    name: "Records",
+    component: ()=>import("../views/InterfaceRecords/InterfaceRecordPage.vue"),
+    meta:{
+      keepAlive:false // 需要缓存
+    }
+  },
+  {
     path: "/system",
     name: "System",
     component: ()=>import("../views/System/System.vue"),

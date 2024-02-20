@@ -4,11 +4,10 @@
 
 <script setup>
 import { EditorState } from "@codemirror/state"
-import { minimalSetup, basicSetup } from "codemirror"
 import { foldGutter, syntaxHighlighting, foldAll, defaultHighlightStyle } from "@codemirror/language"
 import { json } from "@codemirror/lang-json"
 import { EditorView, highlightSpecialChars, drawSelection, lineNumbers } from "@codemirror/view"
-import { nextTick, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 const props = defineProps({
     content: {
@@ -36,10 +35,10 @@ let myTheme = EditorView.theme({
 onMounted(() => {
     let startState = EditorState.create({
         extensions: [
-            syntaxHighlighting(defaultHighlightStyle),
-            EditorView.editable.of(false),  // 不可编辑
-            EditorView.lineWrapping,
-            json(),
+            // syntaxHighlighting(defaultHighlightStyle),
+            // EditorView.editable.of(false),  // 不可编辑
+            // EditorView.lineWrapping,
+            // json(),
             myTheme,
         ],
         doc: props.content,
@@ -66,10 +65,10 @@ watch(
         // messageRef.value.scrollTop = 0
         let startState = EditorState.create({
             extensions: [
-                syntaxHighlighting(defaultHighlightStyle),
-                EditorView.editable.of(false),  // 不可编辑
-                EditorView.lineWrapping,
-                json(),
+                // syntaxHighlighting(defaultHighlightStyle),
+                // EditorView.editable.of(false),  // 不可编辑
+                // EditorView.lineWrapping,
+                // json(),
                 myTheme,
             ],
             doc: props.content,
