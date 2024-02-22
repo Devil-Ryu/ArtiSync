@@ -10,7 +10,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -18,10 +17,11 @@ import (
 
 // ATController 文章控制器
 type ATController struct {
-	ArticleList       []Article     // 文章列表
-	ProxyURL          *url.URL      // 网络代理
-	DBController      *DBController // 数据库控制器
-	InterfaceRecordID string        // 记录ID(每运行一次RUN函数生成一个)
+	ArticleList       []Article                // 文章列表
+	ProxyURL          *url.URL                 // 网络代理
+	DBController      *DBController            // 数据库控制器
+	TestNetController *utils.NetWorkController // 网络控制器，单个链接用
+	InterfaceRecordID string                   // 记录ID(每运行一次RUN函数生成一个)
 	artlog.Logger
 }
 
@@ -56,7 +56,7 @@ type ArticlePlatformInfo struct {
 
 // NewATController 初始化
 func NewATController() *ATController {
-	return &ATController{}
+	return &ATController{TestNetController: utils.NewNetWorkController()}
 }
 
 // SetDBController 设置DBController
@@ -317,11 +317,6 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 				response := netController.Run()
 
 				if response.StatusCode == 200 {
-					a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
-						platform.Name,
-						tmpInterfaceInfo.Name, tmpInterfaceInfo.RequestURL,
-						strconv.Quote(netController.ResponsePool[tmpInterfaceInfo.Serial])))
-
 					imgURL, err := netController.GetResponseMappedValue() // 获取图片链接
 					if err != nil {
 						a.Print(artlog.ERROR, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
@@ -335,23 +330,11 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 					// 更新接口运行状态
 					tmpRecord.Status = utils.RunningSuccess
 					tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, tmpInterfaceInfo)
-
-					// 更新图片状态
-					// a.UpdateArticleStatus(articleIndex, imageProgress)
-
 				} else {
-					a.Print(artlog.ERROR, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
-						platform.Name,
-						tmpInterfaceInfo.Name, tmpInterfaceInfo.RequestURL,
-						strconv.Quote(response.Message)))
-
-					// 更新图片状态
-					// a.UpdateArticleStatus(articleIndex, imageProgress)
 					// 更新接口运行状态
 					tmpRecord.Status = utils.RunningFailed
 					tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, tmpInterfaceInfo)
 					err = fmt.Errorf(response.Message)
-					// return fmt.Errorf(response.Message)
 				}
 			}
 
@@ -377,18 +360,10 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 			a.UpdateArticleDetail(articleIndex, platform)                                    // 更新文章详情
 			response := netController.Run()
 			if response.StatusCode == 200 {
-				a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
-					platform.Name,
-					interfaceInfo.Name, interfaceInfo.RequestURL,
-					strconv.Quote(netController.ResponsePool[interfaceInfo.Serial])))
 				// 更新接口运行状态
 				tmpRecord.Status = utils.RunningSuccess
 				tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, interfaceInfo)
 			} else {
-				a.Print(artlog.ERROR, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "interfaceName":"%s", "interfaceURL":"%s", "response":%s}`,
-					platform.Name,
-					interfaceInfo.Name, interfaceInfo.RequestURL,
-					strconv.Quote((response.Message))))
 				tmpRecord.Status = utils.RunningFailed
 				tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, interfaceInfo)
 				err = fmt.Errorf(response.Message)
@@ -414,6 +389,36 @@ func (a *ATController) SetProxyURL(proxURL string) {
 		a.Print(artlog.WARN, "网络控制器", fmt.Sprintf("设置代理: %s", err.Error()))
 	}
 
+}
+
+// TestInterface 测试接口(TODO 解决测试接口时生成平台，平台没启用时则runinterfaces时会直接报错，359行， 解决接口在运行中状态没有更新的情况)
+func (a *ATController) TestInterface(platform models.Platform, interfaceInfo models.Interface) error {
+	a.TestNetController.SetProxyURL(a.ProxyURL) // 设置代理
+	if len(a.ArticleList) <= 0 {
+		return fmt.Errorf("未发现文章")
+	}
+	err := a.ArticleList[0].MarkdownTool.AnalyzeMarkdown() // 重新分析markdown数据（重置MaikdownLines状态, imagesInfo状态）
+	if err != nil {
+		return fmt.Errorf("文章分析失败")
+	}
+
+	// 将文章转化为字符串放入网络请求池中
+	content := map[string]string{
+		"article": strings.Join(a.ArticleList[0].MarkdownTool.MarkdownLines, "\n"),
+		"title":   a.ArticleList[0].Title,
+	}
+	data, err := json.Marshal(content)
+	if err != nil {
+		return fmt.Errorf("文章格式转化失败")
+	}
+
+	a.TestNetController.ResponsePool["0"] = string(data)
+	a.TestNetController.ResponsePoolType["0"] = "JSON" // 设置接口返回类型为JSON
+	a.InterfaceRecordID = "TEST"
+	a.GenArticleDetail(0) // 运行的时候，重置基本信息
+	a.runInterfaces(a.TestNetController, platform, 0, []models.Interface{interfaceInfo}, interfaceInfo.Type)
+	runtime.EventsEmit(a.Ctx, "UpdateTestNetworkPool", a.TestNetController.ResponsePool)
+	return nil
 }
 
 // Run 运行

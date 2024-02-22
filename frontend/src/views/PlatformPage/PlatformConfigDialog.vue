@@ -71,6 +71,8 @@
                     <t-tag size="medium" shape="mark" theme="primary" variant="outline">优先级: {{ interface_.Prior
                     }}</t-tag>
                     <div style="margin-left: 10px;"> {{ interface_.Name }} </div>
+                    <t-button style="margin-left: 10px;" variant="outline" theme="primary" size="small" @click="runInterface(interface_)">运行接口</t-button>
+
                   </template>
                   <template #headerRightContent>
                     <ChevronUpIcon @click="sortInterface('up', interface_)" size="18" style="cursor: pointer" />
@@ -113,6 +115,8 @@ import { useInterfacesStore, usePlatformStore } from "@/src/store/platform"
 import BatchImportDialog from "../Components/BatchImportDialog.vue";
 import { useBatchImportStore } from '@/src/store/platform'
 import CheckSelect from "./Components/CheckSelect.vue";
+import { EventsOff, EventsOn } from "@/wailsjs/runtime/runtime";
+import { TestInterface } from "@/wailsjs/go/api/ATController";
 
 const batchImportStore = useBatchImportStore()
 const interfacesStore = useInterfacesStore()
@@ -287,6 +291,20 @@ function replaceInterfaceAttr(arr, Key, Value) {
     arr.push({ Key: Key, Value: Value })
   }
 }
+
+function runInterface(interfaceInfo) {
+    console.log("in runInterface")
+  TestInterface(interfacesStore.platform, interfaceInfo).then((result)=>{
+    console.log("runInterface", result)
+  }).catch((err)=>{
+
+    console.log("err", err)
+  })
+}
+
+EventsOn("UpdateTestNetworkPool", (result)=>{
+  console.log("UpdateTestNetworkPool", result)
+})
 </script>
 
 <style scoped></style>

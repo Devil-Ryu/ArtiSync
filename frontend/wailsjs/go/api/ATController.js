@@ -58,6 +58,10 @@ export function Startup(arg1) {
   return window['go']['api']['ATController']['Startup'](arg1);
 }
 
+export function TestInterface(arg1, arg2) {
+  return window['go']['api']['ATController']['TestInterface'](arg1, arg2);
+}
+
 export function UpdateArticleDetail(arg1, arg2) {
   return window['go']['api']['ATController']['UpdateArticleDetail'](arg1, arg2);
 }

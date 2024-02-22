@@ -34,6 +34,8 @@ export function SetProxyURL(arg1:string):Promise<void>;
 
 export function Startup(arg1:context.Context):Promise<void>;
 
+export function TestInterface(arg1:models.Platform,arg2:models.Interface):Promise<void>;
+
 export function UpdateArticleDetail(arg1:number,arg2:models.Platform):Promise<void>;
 
 export function UpdateInterfaceRecord(arg1:models.InterfaceRecord,arg2:utils.NetWorkController,arg3:models.Platform,arg4:number,arg5:models.Interface):Promise<models.InterfaceRecord>;
