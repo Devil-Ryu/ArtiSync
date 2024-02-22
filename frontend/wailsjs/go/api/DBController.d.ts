@@ -15,6 +15,8 @@ export function CreateOrUpdateInterfaceRecord(arg1:models.InterfaceRecord):Promi
 
 export function CreatePlatform(arg1:Array<models.Platform>):Promise<Array<models.Platform>>;
 
+export function DeleteInterfaceRecord(arg1:models.InterfaceRecord):Promise<void>;
+
 export function DeleteInterfaces(arg1:Array<models.Interface>):Promise<void>;
 
 export function DeletePlatforms(arg1:Array<models.Platform>):Promise<void>;

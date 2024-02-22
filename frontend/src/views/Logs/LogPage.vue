@@ -37,9 +37,11 @@
     </t-form>
 
     <t-table
+      height="600"
       :data="data"
       :columns="columns"
       row-key="datetime"
+      style="margin-top: 10px;"
     >   
       <template #level="{ row }">
         <t-tag :theme="statusThemeListMap[row.level]" variant="light">{{statusNameListMap[row.level]}} </t-tag>

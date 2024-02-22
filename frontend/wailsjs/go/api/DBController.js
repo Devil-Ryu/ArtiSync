@@ -26,6 +26,10 @@ export function CreatePlatform(arg1) {
   return window['go']['api']['DBController']['CreatePlatform'](arg1);
 }
 
+export function DeleteInterfaceRecord(arg1) {
+  return window['go']['api']['DBController']['DeleteInterfaceRecord'](arg1);
+}
+
 export function DeleteInterfaces(arg1) {
   return window['go']['api']['DBController']['DeleteInterfaces'](arg1);
 }

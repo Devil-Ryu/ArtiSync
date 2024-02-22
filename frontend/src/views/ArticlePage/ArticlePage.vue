@@ -6,8 +6,8 @@
         <t-button theme="primary" @click="Run">一键发布</t-button>
       </t-space>
     </t-row>
-    <div style="height: 500px;">
       <t-table
+          :height="600"
           :columns="columns"
           :data="articleStore.articleList"
           row-key="Index">
@@ -21,7 +21,6 @@
             </t-button>
           </template>
       </t-table>
-    </div>
     
     <ArticleDetail />
   </div>
@@ -37,32 +36,22 @@ import { MessagePlugin } from "tdesign-vue-next";
 import {useArticleStore, statusNameListMap} from "@/src/store/article"
 import { useConfigStore } from "@/src/store/config";
 import { useInterfaceRecordsStore } from "@/src/store/platform";
-import RecordDetailDialog from "../Components/RecordDetailDialog/RecordDetailDialog.vue";
-const interfaceRecordsStore = useInterfaceRecordsStore()
 const configStore = useConfigStore()
 const articleStore = useArticleStore()
 
-// const statusNameListMap = {
-//   "运行完成": {  theme: 'success', label: "运行完成"},
-//   "上传成功": {  theme: 'success', label: "上传成功"},
-//   "上传失败": { theme: 'danger', label: "上传失败" },
-//   "处理中": { theme: 'primary', label: "处理中" },
-//   "等待中": { theme: 'default', label: "等待中" },
-// };
-
 const columns = ref([
-  {colKey: 'Index', title: '序号', width: 60, align: 'center'},
+  {colKey: 'Index', title: '序号', align: 'center'},
   {colKey: 'Title', title: '文章名称', ellipsisTitle: true},
-  {colKey: 'Progress', title: '上传进度', width: 240,
+  {colKey: 'Progress', title: '上传进度',
     cell: (h, { row}) => {
     return (<t-progress theme="line" percentage={row.Progress} />)
   }},
-  {colKey: 'Status', title: '状态', width: 80, align: 'center',
+  {colKey: 'Status', title: '状态', align: 'center',
     cell: (h, { row }) => {
     return (<t-tag theme={statusNameListMap[row.Status].theme} variant="light">{statusNameListMap[row.Status].label}</t-tag>)
     },
   },
-  {colKey: 'operation', title: '操作', align: 'center', width: 80},
+  {colKey: 'operation', title: '操作', align: 'center'},
 ])
 
 

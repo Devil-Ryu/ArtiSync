@@ -39,7 +39,6 @@ func TestController(t *testing.T) {
 func TestNetworkController(t *testing.T) {
 	controller := api.NewDBController()
 	controller.Connect("/Users/ryu/Documents/test.db")
-
 	platform, _ := controller.GetPlatform(models.Platform{ID: 2})
 	fmt.Println("platform", platform.Name)
 	fmt.Println("platform", platform.Interfaces[1].Name)

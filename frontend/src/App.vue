@@ -1,12 +1,10 @@
 <script setup>
 import HomePage from "./views/HomePage.vue";
 import {ref} from "vue";
-
 </script>
 
 <template>
-  <HomePage />
-
+    <HomePage />
 </template>
 
 <style>

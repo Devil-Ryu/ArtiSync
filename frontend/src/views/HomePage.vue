@@ -1,26 +1,28 @@
 <template>
-  <t-layout style="min-height: 640px;">
-    <t-header>
-      <t-head-menu value="item1" >
+  <t-layout style="height: 100%;">
+    <!-- <t-header>
+      <t-head-menu value="item1">
         <template #logo>
           <p style="color: var(--td-brand-color); font-size: 24px; letter-spacing: 10px;">
             ArtiSync
           </p>
-          <!-- <t-space break-line style="color: var(--td-brand-color); font-size: 25px; letter-spacing: 10px;" :size="0">
-            ArtiSync
-          </t-space> -->
         </template>
-        <!-- <t-menu-item value="item1" :disabled="true"> 发布文章 </t-menu-item> -->
         <template #operations>
-          <a href="javascript:;"><SearchIcon class="t-menu__operations-icon"/></a>
-          <a href="javascript:;"><NotificationFilledIcon class="t-menu__operations-icon"/></a>
-          <a href="javascript:;"><HomeIcon class="t-menu__operations-icon"/></a>
+          <a href="javascript:;">
+            <SearchIcon class="t-menu__operations-icon" />
+          </a>
+          <a href="javascript:;">
+            <NotificationFilledIcon class="t-menu__operations-icon" />
+          </a>
+          <a href="javascript:;">
+            <HomeIcon class="t-menu__operations-icon" />
+          </a>
         </template>
       </t-head-menu>
-    </t-header>
-    <t-layout>
-      <t-aside style="border-top: 1px solid var(--td-component-border)" width="200px">
-        <t-menu theme="light" v-model="asideIndex" style="margin-right: 50px;" height="550px" width="100%">
+    </t-header> -->
+    <t-layout class="content">
+      <t-aside class="content-left">
+        <t-menu theme="light" v-model="asideIndex" width="200px">
           <t-menu-item value="article" to="/article">
             <template #icon>
               <BookOpenIcon />
@@ -53,20 +55,20 @@
           </t-menu-item>
         </t-menu>
       </t-aside>
-      <t-layout >
-        <t-content >
-          <div class="content">
+      <t-layout class="content-right">
+        <t-content>
+          <div class="content-view">
             <router-view></router-view>
           </div>
         </t-content>
-        <t-footer class="footer">Copyright @ 2019-{{ new Date().getFullYear() }} Devil-Ryu. All Rights Reserved</t-footer>
+        <div class="content-footer">Copyright @ 2019-{{ new Date().getFullYear() }} Devil-Ryu. All Rights Reserved</div>
       </t-layout>
     </t-layout>
   </t-layout>
 </template>
 <script setup>
-import { LettersAIcon, LettersRIcon, LettersTIcon, LettersIIcon, LettersSIcon, LettersYIcon, LettersNIcon, LettersCIcon, SearchIcon, NotificationFilledIcon, HomeIcon, BookOpenIcon, ControlPlatformIcon, NotificationIcon, SettingIcon} from "tdesign-icons-vue-next";
-import { GetConfigFilePath, LoadJSONFile} from "@/wailsjs/go/api/DBController.js";
+import { LettersAIcon, LettersRIcon, LettersTIcon, LettersIIcon, LettersSIcon, LettersYIcon, LettersNIcon, LettersCIcon, SearchIcon, NotificationFilledIcon, HomeIcon, BookOpenIcon, ControlPlatformIcon, NotificationIcon, SettingIcon } from "tdesign-icons-vue-next";
+import { GetConfigFilePath, LoadJSONFile } from "@/wailsjs/go/api/DBController.js";
 import { ref, onMounted } from "vue";
 import { MessagePlugin } from "tdesign-vue-next";
 import { useLogStore } from "@/src/store/log";
@@ -77,28 +79,28 @@ const configStore = useConfigStore()
 const asideIndex = ref('article')
 const logger = useLogStore()
 
-EventsOn("PushLog", (result)=>{
+EventsOn("PushLog", (result) => {
   logger.history.push(result)
 })
 
 onMounted(() => {
-    loadSystemConfig()
+  loadSystemConfig()
 })
 
 // 加载系统设置
 function loadSystemConfig() {
-  GetConfigFilePath().then((configFilePath)=>{
+  GetConfigFilePath().then((configFilePath) => {
     configStore.sysPath = configFilePath
-    LoadJSONFile(configFilePath).then((result)=>{
-        configStore.systemConfig = result
-        console.log("loadSystemConfig: ", result)
-    }).catch((err)=>{
-        MessagePlugin.error(err)
+    LoadJSONFile(configFilePath).then((result) => {
+      configStore.systemConfig = result
+      console.log("loadSystemConfig: ", result)
+    }).catch((err) => {
+      MessagePlugin.error(err)
     })
-  }).catch((err)=>{
+  }).catch((err) => {
     MessagePlugin.error(err)
   })
-    
+
 }
 
 
@@ -107,21 +109,32 @@ function loadSystemConfig() {
 
 <style>
 
-.footer {
-  display: flex;
-  padding: 0;
-  height: 1px;
-  font-size: 12px;
-  justify-content: center;
-  align-items: center;
-  /* background-color: #2ba471; */
-}
-
 .content {
-  margin: 1px;
-  padding: 10px;
-  height: 100%;
-  background-color: white;
-}
 
+  .content-left {
+    width: 200px;
+    border-top: 1px solid var(--td-component-border);
+    background-color: aqua;
+  }
+
+  .content-right {
+    margin: 1px;
+    padding: 10px;
+    height: inherit;
+    /* background-color: white; */
+
+    .content-view {
+      height: 100%;
+      margin: 0;
+    }
+
+    .content-footer {
+      display: flex;
+      margin: 0;
+      justify-content: center;
+    }
+  }
+
+
+}
 </style>

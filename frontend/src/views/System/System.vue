@@ -1,4 +1,5 @@
 <template>
+    <div>
     <TForm label-align="top">
         <!-- 文章设置卡片 -->
         <SettingCard title="文章设置">
@@ -73,7 +74,8 @@
             </t-button>
         </t-space>
     </TForm>
-    <CodeViewer />
+</div>
+
 </template>
 
 <script setup>

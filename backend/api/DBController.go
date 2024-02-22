@@ -74,6 +74,12 @@ func (d *DBController) AutoMigrate() (err error) {
 
 // QueryInterfaceRecords 查询接口记录
 func (d *DBController) QueryInterfaceRecords(query map[string]interface{}, pageNum int, pageSize int) (map[string]interface{}, error) {
+	// 检查数据库连接
+	err := d.CheckConnect()
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+
 	// 给页面大小赋初始值
 	if pageNum == 0 {
 		pageNum = 1
@@ -94,28 +100,30 @@ func (d *DBController) QueryInterfaceRecords(query map[string]interface{}, pageN
 				appendQuery(&queryList, &queryParams, "record_id = ?", tmp)
 			}
 		case "date_time":
-			tmp, ok := value.([]string)
-			tmpList := []interface{}{}
-			for _, item := range tmp {
-				tmpList = append(tmpList, item)
-			}
+			tmp, ok := value.([]interface{})
 			if ok && len(tmp) != 0 {
+				tmpList := []interface{}{tmp[0], tmp[1]}
 				appendQuery(&queryList, &queryParams, "date_time between ? and ?", tmpList...)
 			}
 		case "platform_name":
-			tmp, ok := value.([]string)
+			tmp, ok := value.(string)
 			if ok && len(tmp) != 0 {
-				appendQuery(&queryList, &queryParams, "platform_name in ?", tmp)
+				appendQuery(&queryList, &queryParams, "platform_name like ?", "%"+tmp+"%")
+			}
+		case "name":
+			tmp, ok := value.(string)
+			if ok && tmp != "" {
+				appendQuery(&queryList, &queryParams, "name like ?", "%"+tmp+"%")
 			}
 		case "status":
-			tmp, ok := value.([]string)
+			tmp, ok := value.([]interface{})
 			if ok && len(tmp) != 0 {
 				appendQuery(&queryList, &queryParams, "status in ?", tmp)
 			}
 		case "tag":
-			tmp, ok := value.(string)
-			if ok && tmp != "" {
-				appendQuery(&queryList, &queryParams, "tag = ?", tmp)
+			tmp, ok := value.([]interface{})
+			if ok && len(tmp) != 0 {
+				appendQuery(&queryList, &queryParams, "tag in ?", tmp)
 			}
 		}
 
@@ -124,8 +132,11 @@ func (d *DBController) QueryInterfaceRecords(query map[string]interface{}, pageN
 	var result []models.InterfaceRecord
 
 	querySQL := strings.Join(queryList, " and ")
+	fmt.Println("query: ", query)
+	fmt.Println("querySQL: ", querySQL)
+	fmt.Println("queryParams: ", queryParams)
 	totalRows := d.DB.Where(querySQL, queryParams...).Find(&result).RowsAffected // 获取总行数
-	d.DB.Where(querySQL, queryParams...).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&result)
+	d.DB.Where(querySQL, queryParams...).Limit(pageSize).Offset((pageNum - 1) * pageSize).Order("date_time desc").Find(&result)
 
 	resultMap := map[string]interface{}{
 		"result":    result,
@@ -349,6 +360,21 @@ func (d *DBController) DeleteInterfaces(interfaces []models.Interface) error {
 	}
 	return nil
 
+}
+
+// DeleteInterfaceRecord 删除接口记录
+func (d *DBController) DeleteInterfaceRecord(record models.InterfaceRecord) error {
+	d.CheckConnect()
+	// 检查数据库连接
+	err := d.CheckConnect()
+	if err != nil {
+		return err
+	}
+
+	// 删除该记录
+	d.DB.Delete(&record)
+
+	return nil
 }
 
 // ExportPlatform 导出平台信息到文件

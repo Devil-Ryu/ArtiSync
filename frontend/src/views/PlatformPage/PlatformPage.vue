@@ -19,10 +19,10 @@
         </t-card>
       </div>
       <t-space style="display: flex;justify-content: center">
-        <t-button  variant="outline" theme="success" >
+        <!-- <t-button  variant="outline" theme="success" >
           <template #icon><RocketIcon /></template>
           测速
-        </t-button>
+        </t-button> -->
         <t-button variant="outline" theme="primary" @click="addPlatform">
           <template #icon><AddIcon /></template>
           新增
