@@ -37,7 +37,7 @@
           </t-menu-item>
           <t-menu-item value="records" to="/records">
             <template #icon>
-              <ControlPlatformIcon />
+              <FormIcon />
             </template>
             接口记录
           </t-menu-item>
@@ -67,7 +67,7 @@
   </t-layout>
 </template>
 <script setup>
-import { LettersAIcon, LettersRIcon, LettersTIcon, LettersIIcon, LettersSIcon, LettersYIcon, LettersNIcon, LettersCIcon, SearchIcon, NotificationFilledIcon, HomeIcon, BookOpenIcon, ControlPlatformIcon, NotificationIcon, SettingIcon } from "tdesign-icons-vue-next";
+import { FormIcon, LettersRIcon, LettersTIcon, LettersIIcon, LettersSIcon, LettersYIcon, LettersNIcon, LettersCIcon, SearchIcon, NotificationFilledIcon, HomeIcon, BookOpenIcon, ControlPlatformIcon, NotificationIcon, SettingIcon } from "tdesign-icons-vue-next";
 import { GetConfigFilePath, LoadJSONFile } from "@/wailsjs/go/api/DBController.js";
 import { ref, onMounted } from "vue";
 import { MessagePlugin } from "tdesign-vue-next";

@@ -10,40 +10,7 @@
       </t-row>
     </template>
     <template #body>
-      <t-tabs default-value="interface" placement="top">
-        <t-tab-panel label="编辑接口" value="interface">
-          <t-collapse expand-icon-placement="right" expand-mutex borderless>
-            <div v-for="(interface_, index) in interfacesStore.platform.Interfaces">
-              <t-card v-if="interface_.ParentSerial == undefined" :shadow="true" style="margin-top: 10px; padding: 0">
-                <t-collapse-panel destroyOnCollapse>
-                  <template #header>
-                    <t-tag size="medium" shape="mark" theme="primary" variant="outline">优先级: {{ interface_.Prior
-                    }}</t-tag>
-                    <div style="margin-left: 10px;"> {{ interface_.Name }} </div>
-                  </template>
-                  <template #headerRightContent>
-                    <ChevronUpIcon @click="sortInterface('up', interface_)" size="18" style="cursor: pointer" />
-                    <ChevronDownIcon @click="sortInterface('down', interface_)" size="18" style="cursor: pointer" />
-                    <DeleteIcon @click="deleteInterfaces(index, interface_)" style="cursor: pointer" />
-                  </template>
-                  <InterfaceConfigForm v-if="!interfacesStore.platform.Interfaces[index].IsGroup"
-                    v-model:interface-form="interfacesStore.platform.Interfaces[index]" />
-
-                  <InterfaceGroupForm v-if="interfacesStore.platform.Interfaces[index].IsGroup"
-                    v-model:interface-form="interfacesStore.platform.Interfaces[index]" />
-                </t-collapse-panel>
-              </t-card>
-            </div>
-          </t-collapse>
-          <t-dropdown :options="[{ content: '新增接口', value: false }, { content: '新增接口组', value: true }]" placement="right"
-            @click="addInterface">
-            <t-button shape="circle" theme="primary" style="margin-top: 10px;">
-              <template #icon>
-                <AddIcon />
-              </template>
-            </t-button>
-          </t-dropdown>
-        </t-tab-panel>
+      <t-tabs default-value="mapRules" placement="top">
         <t-tab-panel label="编辑规则" value="mapRules">
           <div style="margin-top: 8px;">
             <t-row v-for="(item, index) in interfacesStore.platform.ReplaceMaps" :gutter="5" style="margin-top: 4px;"
@@ -94,6 +61,39 @@
               </t-col>
             </t-row>
           </div>
+        </t-tab-panel>
+        <t-tab-panel label="编辑接口" value="interface">
+          <t-collapse expand-icon-placement="right" expand-mutex borderless>
+            <div v-for="(interface_, index) in interfacesStore.platform.Interfaces">
+              <t-card v-if="interface_.ParentSerial == undefined" :shadow="true" style="margin-top: 10px; padding: 0">
+                <t-collapse-panel destroyOnCollapse>
+                  <template #header>
+                    <t-tag size="medium" shape="mark" theme="primary" variant="outline">优先级: {{ interface_.Prior
+                    }}</t-tag>
+                    <div style="margin-left: 10px;"> {{ interface_.Name }} </div>
+                  </template>
+                  <template #headerRightContent>
+                    <ChevronUpIcon @click="sortInterface('up', interface_)" size="18" style="cursor: pointer" />
+                    <ChevronDownIcon @click="sortInterface('down', interface_)" size="18" style="cursor: pointer" />
+                    <DeleteIcon @click="deleteInterfaces(index, interface_)" style="cursor: pointer" />
+                  </template>
+                  <InterfaceConfigForm v-if="!interfacesStore.platform.Interfaces[index].IsGroup"
+                    v-model:interface-form="interfacesStore.platform.Interfaces[index]" />
+
+                  <InterfaceGroupForm v-if="interfacesStore.platform.Interfaces[index].IsGroup"
+                    v-model:interface-form="interfacesStore.platform.Interfaces[index]" />
+                </t-collapse-panel>
+              </t-card>
+            </div>
+          </t-collapse>
+          <t-dropdown :options="[{ content: '新增接口', value: false }, { content: '新增接口组', value: true }]" placement="right"
+            @click="addInterface">
+            <t-button shape="circle" theme="primary" style="margin-top: 10px;">
+              <template #icon>
+                <AddIcon />
+              </template>
+            </t-button>
+          </t-dropdown>
         </t-tab-panel>
       </t-tabs>
     </template>
