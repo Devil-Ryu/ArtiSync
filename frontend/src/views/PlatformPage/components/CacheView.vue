@@ -49,7 +49,6 @@ function deleteCache(row) {
 }
 
 EventsOn("UpdateTestNetworkPool", (result) => {
-    console.log("UpdateTestNetworkPool", result)
   interfaceRecordStore.testCaches = result
 })
 </script>

@@ -206,11 +206,13 @@ function addInterface(data) {
 // 保存接口信息
 function saveInterfaces() {
   console.log("save interface", interfacesStore.platform.Interfaces)
+  // 更新接口信息
   UpdateInterface(interfacesStore.platform.Interfaces).then(result => {
     MessagePlugin.success('保存成功')
   })
-  updatePlatform(interfacesStore.platform)
-  interfacesStore.visible = false
+  updatePlatform(interfacesStore.platform)  // 更新平台信息
+  oldForm = JSON.stringify(interfacesStore.platform);  // 更新旧表单
+  // interfacesStore.visible = false
 }
 
 // 删除接口信息
