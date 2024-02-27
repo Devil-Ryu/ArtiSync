@@ -421,11 +421,23 @@ func (a *ATController) TestInterface(platform models.Platform, interfaceInfo mod
 	a.TestNetController.ResponsePoolType["0"] = "JSON" // 设置接口返回类型为JSON
 	a.InterfaceRecordID = "TEST"
 	a.GenArticleDetail(0) // 运行的时候，重置基本信息
-	runErr := a.runInterfaces(a.TestNetController, platform, 0, []models.Interface{interfaceInfo}, interfaceInfo.Type)
-	if runErr != nil {
-		errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr).Error()
-		a.Print(artlog.ERROR, "测试控制器", errMsg)
-		return fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr)
+
+	if interfaceInfo.IsGroup {
+		// 如果为组则执行子接口列表
+		runErr := a.runInterfaces(a.TestNetController, platform, 0, interfaceInfo.Children, interfaceInfo.Type)
+		if runErr != nil {
+			errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr).Error()
+			a.Print(artlog.ERROR, "测试控制器", errMsg)
+			return fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr)
+		}
+	} else {
+		// 如果不为组则执行接口（接口执行： 判断接口是否为图片->循环执行接口， 否->执行接口）
+		runErr := a.runInterfaces(a.TestNetController, platform, 0, []models.Interface{interfaceInfo}, interfaceInfo.Type)
+		if runErr != nil {
+			errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr).Error()
+			a.Print(artlog.ERROR, "测试控制器", errMsg)
+			return fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr)
+		}
 	}
 
 	caches, err := a.GetTestNetControllerInfo()

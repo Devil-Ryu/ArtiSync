@@ -28,6 +28,12 @@
               <t-radio-button value="GET">GET</t-radio-button>
               <t-radio-button value="POST">POST</t-radio-button>
               <t-radio-button value="PUT">PUT</t-radio-button>
+              <t-radio-button value="OPTIONS">OPTIONS</t-radio-button>
+              <t-radio-button value="PATCH">PATCH</t-radio-button>
+              <t-radio-button value="DELETE">DELETE</t-radio-button>
+              <t-radio-button value="HEAD">HEAD</t-radio-button>
+              <t-radio-button value="TRACE">TRACE</t-radio-button>
+              <t-radio-button value="CONNECT">CONNECT</t-radio-button>
             </t-space>
           </t-radio-group>
         </t-form-item>
@@ -109,12 +115,13 @@
               @click="openBatchDialog(props.interfaceForm.RequestHeaders)">批量导入</t-link>
           </div>
         </t-form-item>
-        <t-form-item label="请求体" v-if="['POST', 'PUT'].indexOf(props.interfaceForm.RequestMethod) !== -1">
+        <t-form-item label="请求体" >
+        <!-- <t-form-item label="请求体" v-if="['POST', 'PUT'].indexOf(props.interfaceForm.RequestMethod) !== -1"> -->
           <div style="width: 100%;">
             <t-row :gutter="5">
               <t-col  class="input-list-key">
                 <t-select 
-                  :options="['JSON', 'ROWDATA', 'FORMDATA'].map((value) => ({ label: value, value }))"
+                  :options="['JSON', 'ROWDATA', 'FORMDATA', 'NONE'].map((value) => ({ label: value, value }))"
                   v-model="props.interfaceForm.RequestBodyType" />
               </t-col>
             </t-row>
@@ -256,6 +263,7 @@ const interfaceTypeOptions = [
   { label: "文章上传接口", value: "article" },
 ]
 const responseTypeOptions = [
+  { label: 'NONE', value: 'NONE' },
   { label: 'JSON', value: 'JSON' },
   { label: 'FORM', value: 'FORM' },
   { label: 'ROWDATA', value: 'ROWDATA' },
@@ -263,8 +271,8 @@ const responseTypeOptions = [
 
 const responseMapTypeOptions = [
   { label: 'JSON', value: 'JSON' },
-  { label: 'RE', value: 'RE' },
   { label: 'NONE', value: 'NONE' },
+  { label: 'RE', value: 'RE' },
 ]
 
 // const batchImportDialogVisible = ref(false)
