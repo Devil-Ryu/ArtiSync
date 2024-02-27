@@ -104,10 +104,12 @@ export const useInterfaceRecordsStore = defineStore('interfaceRecords', () => {
     Status: "运行失败",
     Tag: "1",
   })
+  const testCaches = ref([])  // 测试接口的缓存
   return {
       records,
       detailDialogVisible,
       curRecord,
+      testCaches,
   }
 })
 

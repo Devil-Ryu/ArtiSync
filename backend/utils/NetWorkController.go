@@ -89,7 +89,7 @@ func (n *NetWorkController) GetDynamicParam(paramValue string) (retVal string, e
 	if responseType == "JSON" {
 		responseJSON := gjson.Parse(n.ResponsePool[paramArr[0]]) // 在响应池中根据接口ID找到对应接口响应，转化为GJSON格式
 		if !responseJSON.Exists() {
-			return retVal, fmt.Errorf("解析JSON响应失败: %w", err)
+			return retVal, fmt.Errorf("解析响应包至JSON失败")
 		}
 		if len(paramArr) > 1 {
 			paramPath := strings.Join(paramArr[1:], ".")
@@ -347,13 +347,16 @@ func (n *NetWorkController) Run() ResponseJSON {
 	// client := http.Client{}
 	request, err := n.GetRequest()
 	if err != nil {
-		err = fmt.Errorf("构造请求错误: %w", err)
+		err = fmt.Errorf("构造请求报文错误: %w", err)
+		n.CurRequestMessage = err.Error() // 更改请求报文为错误信息
+		n.CurResponseMessage = "无响应报文"    // 更改响应报文为错误信息
 		return ResponseJSON{StatusCode: 500, Message: err.Error()}
 	}
 	// 解析请求信息
 	RequestMessage, err := httputil.DumpRequestOut(request, true)
 	if err != nil {
-		n.CurRequestMessage = "解析请求错误" + err.Error()
+		n.CurRequestMessage = "解析请求报文错误" + err.Error() // 更改请求报文为错误信息
+		n.CurResponseMessage = "无响应报文"                 // 更改响应报文为错误信息
 	} else {
 		n.CurRequestMessage = string(RequestMessage)
 	}
@@ -367,14 +370,15 @@ func (n *NetWorkController) Run() ResponseJSON {
 	// 解析响应信息
 	ResponseMessage, err := httputil.DumpResponse(resp, true)
 	if err != nil {
-		n.CurResponseMessage = "解析响应错误" + err.Error()
+		n.CurResponseMessage = "解析响应包错误" + err.Error()
 	} else {
 		n.CurResponseMessage = string(ResponseMessage)
 	}
 
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		err = fmt.Errorf("解析响应错误: %w", err)
+		err = fmt.Errorf("解析响应体错误: %w", err)
+		n.CurResponseMessage = "解析响应体错误" + err.Error()
 		return ResponseJSON{StatusCode: 500, Message: err.Error()}
 	}
 
@@ -386,10 +390,12 @@ func (n *NetWorkController) Run() ResponseJSON {
 		retVal, err := n.GetResponseMappedValue()
 		if err != nil {
 			err = fmt.Errorf("校验响应错误: %w", err)
+			n.CurResponseMessage = err.Error() + "\n响应包如下\n\n" + n.CurResponseMessage
 			return ResponseJSON{StatusCode: 500, Message: err.Error()}
 		}
 		if retVal == "" {
 			err = fmt.Errorf("校验响应为空: %w", err)
+			n.CurResponseMessage = err.Error() + "\n响应包如下\n\n" + n.CurResponseMessage
 			return ResponseJSON{StatusCode: 500, Message: err.Error()}
 		}
 	}

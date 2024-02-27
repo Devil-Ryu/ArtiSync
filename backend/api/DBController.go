@@ -136,7 +136,7 @@ func (d *DBController) QueryInterfaceRecords(query map[string]interface{}, pageN
 	fmt.Println("querySQL: ", querySQL)
 	fmt.Println("queryParams: ", queryParams)
 	totalRows := d.DB.Where(querySQL, queryParams...).Find(&result).RowsAffected // 获取总行数
-	d.DB.Where(querySQL, queryParams...).Limit(pageSize).Offset((pageNum - 1) * pageSize).Order("date_time desc").Find(&result)
+	d.DB.Where(querySQL, queryParams...).Limit(pageSize).Offset((pageNum - 1) * pageSize).Order("date_time desc, id desc").Find(&result)
 
 	resultMap := map[string]interface{}{
 		"result":    result,
@@ -223,7 +223,7 @@ func (d *DBController) GetInterface(interfaceInfo models.Interface) (models.Inte
 		return interfaceInfo, err
 	}
 	d.DB.Preload(clause.Associations).
-		Find(&interfaceInfo)
+		Find(&interfaceInfo, interfaceInfo)
 	return interfaceInfo, nil
 }
 
@@ -373,6 +373,21 @@ func (d *DBController) DeleteInterfaceRecord(record models.InterfaceRecord) erro
 
 	// 删除该记录
 	d.DB.Delete(&record)
+
+	return nil
+}
+
+// ClearInterfaceRecord 清空接口记录表
+func (d *DBController) ClearInterfaceRecord() error {
+	d.CheckConnect()
+	// 检查数据库连接
+	err := d.CheckConnect()
+	if err != nil {
+		return err
+	}
+
+	// 删除该记录
+	d.DB.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.InterfaceRecord{})
 
 	return nil
 }

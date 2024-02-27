@@ -312,10 +312,11 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 				// 记录接口运行
 				tmpRecord := models.InterfaceRecord{Tag: fmt.Sprint(index + 1), Status: utils.Running}
 				tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, tmpInterfaceInfo)
-				a.ArticleList[articleIndex].PlatformsInfo[platform.Name].InterfaceActualRunNum++ // 更新运行接口数
-				a.UpdateArticleDetail(articleIndex, platform)                                    // 更新文章详情
+				if a.InterfaceRecordID != "TEST" { // 测试接口的时候不更新文章详情
+					a.ArticleList[articleIndex].PlatformsInfo[platform.Name].InterfaceActualRunNum++ // 更新运行接口数
+					a.UpdateArticleDetail(articleIndex, platform)                                    // 更新文章详情
+				}
 				response := netController.Run()
-
 				if response.StatusCode == 200 {
 					imgURL, err := netController.GetResponseMappedValue() // 获取图片链接
 					if err != nil {
@@ -356,8 +357,11 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 
 			tmpRecord := models.InterfaceRecord{Tag: fmt.Sprint(index + 1), Status: utils.Running}
 			tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, interfaceInfo)
-			a.ArticleList[articleIndex].PlatformsInfo[platform.Name].InterfaceActualRunNum++ // 更新运行接口数
-			a.UpdateArticleDetail(articleIndex, platform)                                    // 更新文章详情
+			if a.InterfaceRecordID != "TEST" { // 测试接口的时候不更新文章详情
+				a.ArticleList[articleIndex].PlatformsInfo[platform.Name].InterfaceActualRunNum++ // 更新运行接口数
+				a.UpdateArticleDetail(articleIndex, platform)                                    // 更新文章详情
+			}
+
 			response := netController.Run()
 			if response.StatusCode == 200 {
 				// 更新接口运行状态
@@ -367,6 +371,7 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 				tmpRecord.Status = utils.RunningFailed
 				tmpRecord, _ = a.UpdateInterfaceRecord(tmpRecord, netController, platform, articleIndex, interfaceInfo)
 				err = fmt.Errorf(response.Message)
+				// a.Print(artlog.ERROR, "网络控制器", fmt.Sprintf(`{"Serial":"%s", "Name":"%s", "Message":%s}`, interfaceInfo.Serial, interfaceInfo.Name, response.Message))
 				// return fmt.Errorf(response.Message)
 			}
 		}
@@ -391,7 +396,7 @@ func (a *ATController) SetProxyURL(proxURL string) {
 
 }
 
-// TestInterface 测试接口(TODO 解决测试接口时生成平台，平台没启用时则runinterfaces时会直接报错，359行， 解决接口在运行中状态没有更新的情况)
+// TestInterface 测试接口
 func (a *ATController) TestInterface(platform models.Platform, interfaceInfo models.Interface) error {
 	a.TestNetController.SetProxyURL(a.ProxyURL) // 设置代理
 	if len(a.ArticleList) <= 0 {
@@ -416,9 +421,59 @@ func (a *ATController) TestInterface(platform models.Platform, interfaceInfo mod
 	a.TestNetController.ResponsePoolType["0"] = "JSON" // 设置接口返回类型为JSON
 	a.InterfaceRecordID = "TEST"
 	a.GenArticleDetail(0) // 运行的时候，重置基本信息
-	a.runInterfaces(a.TestNetController, platform, 0, []models.Interface{interfaceInfo}, interfaceInfo.Type)
-	runtime.EventsEmit(a.Ctx, "UpdateTestNetworkPool", a.TestNetController.ResponsePool)
+	runErr := a.runInterfaces(a.TestNetController, platform, 0, []models.Interface{interfaceInfo}, interfaceInfo.Type)
+	if runErr != nil {
+		errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr).Error()
+		a.Print(artlog.ERROR, "测试控制器", errMsg)
+		return fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr)
+	}
+
+	caches, err := a.GetTestNetControllerInfo()
+	if err != nil {
+		return err
+	}
+	runtime.EventsEmit(a.Ctx, "UpdateTestNetworkPool", caches)
 	return nil
+}
+
+// GetTestNetControllerInfo 获取测试网络控制器的信息
+func (a *ATController) GetTestNetControllerInfo() ([]map[string]string, error) {
+	// 遍历响应池
+	result := []map[string]string{}
+	for serial, response := range a.TestNetController.ResponsePool {
+		fmt.Println("serial: ", serial)
+		var interfaceName string
+		if serial != "0" {
+			interfaceInfo, err := a.DBController.GetInterface(models.Interface{Serial: serial})
+			if err != nil {
+				return []map[string]string{}, fmt.Errorf("接口获取错误：%w", err)
+			}
+			interfaceName = interfaceInfo.Name
+		} else {
+			interfaceName = "文章信息"
+		}
+		tmp := map[string]string{
+			"Serial":      serial,
+			"Name":        interfaceName,
+			"Reponse":     response,
+			"ReponseType": a.TestNetController.ResponsePoolType[serial],
+		}
+		result = append(result, tmp)
+	}
+
+	return result, nil
+}
+
+// DeleteTestNetControllerCache 删除测试网络控制器的缓存
+func (a *ATController) DeleteTestNetControllerCache(key string) error {
+	if _, ok := a.TestNetController.ResponsePool[key]; ok {
+		delete(a.TestNetController.ResponsePool, key)
+	} else {
+		return fmt.Errorf("key 不存在: %s", key)
+	}
+
+	return nil
+
 }
 
 // Run 运行

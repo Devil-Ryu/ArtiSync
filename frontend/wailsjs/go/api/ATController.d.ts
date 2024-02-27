@@ -6,11 +6,15 @@ import {api} from '../models';
 import {context} from '../models';
 import {models} from '../models';
 
+export function DeleteTestNetControllerCache(arg1:string):Promise<void>;
+
 export function GenArticleDetail(arg1:number):Promise<void>;
 
 export function GetLogHistory():Promise<utils.ResponseJSON>;
 
 export function GetRecordID():Promise<utils.ResponseJSON>;
+
+export function GetTestNetControllerInfo():Promise<Array<{[key: string]: string}>>;
 
 export function InitConfig():Promise<void>;
 

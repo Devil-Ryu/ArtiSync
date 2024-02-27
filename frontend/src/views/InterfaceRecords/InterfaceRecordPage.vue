@@ -18,7 +18,9 @@
               <t-space :size="10">
                 <t-button type="reset" variant="outline" theme="warning" @click="reset"> 重置 </t-button>
                 <t-button type="reset" variant="outline" theme="primary" @click="query"> 查询 </t-button>
-                <t-button type="reset" variant="outline" theme="danger" @click="reset"> 清空 </t-button>
+                <t-popconfirm theme="danger" content="操作将删除所有记录，确认删除吗?" @confirm="clear">
+                  <t-button type="reset" variant="outline" theme="danger"> 清空 </t-button>
+                </t-popconfirm>
               </t-space>
             </t-col>
           </t-row>
@@ -66,7 +68,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { DeleteInterfaceRecord, QueryInterfaceRecords } from "@/wailsjs/go/api/DBController";
+import { DeleteInterfaceRecord, QueryInterfaceRecords, ClearInterfaceRecord } from "@/wailsjs/go/api/DBController";
 import { statusNameListMap } from "@/src/store/article"
 import { useInterfaceRecordsStore } from "@/src/store/platform";
 import RecordDetailDialog from "@/src/views/Components/RecordDetailDialog/RecordDetailDialog.vue";
@@ -134,6 +136,15 @@ function openRecordDetail(row) {
 function reset() {
   filterValue.value = { date_time: [] }
   fetchData({ current: pagination.value.defaultCurrent, pageSize: pagination.value.defaultPageSize })
+}
+
+function clear() {
+  ClearInterfaceRecord().then(()=>{
+    fetchData({ current: pagination.value.defaultCurrent, pageSize: pagination.value.defaultPageSize })
+    MessagePlugin.success("已删除全部记录")
+  }).catch((err)=>{
+    MessagePlugin.error("清空错误："+err)
+  })
 }
 
 function query() {

@@ -21,7 +21,7 @@
               :theme="statusNameListMap[articleStore.articleDetailBasicInfo.Status].theme">{{
                 statusNameListMap[articleStore.articleDetailBasicInfo.Status].label
               }}</t-tag></t-descriptions-item>
-          <t-descriptions-item label="发布平台">{{ articleStore.articleDetailBasicInfo.Platforms.join(', ')
+          <t-descriptions-item label="发布平台">{{ articleStore.articleDetailBasicInfo.Platforms
           }}</t-descriptions-item>
           <t-descriptions-item label="记录ID">{{ articleStore.articleDetailBasicInfo.InterfaceRecordID
           }}</t-descriptions-item>
@@ -173,10 +173,13 @@ const data = computed(() => {
 
 // 函数区
 EventsOn("UpdateInterfaceRecord", (recordID) => {
-  GetInterfaceRecords({ "record_id": recordID }).then(result => {
+  if (recordID !== "TEST") {
+    GetInterfaceRecords({ "record_id": recordID }).then(result => {
     interfaceRecordsStore.records = result
-    console.log("result: ", result)
+    console.log("[ArticleDetail]UpdateInterfaceRecord: ", result)
   })
+  }
+
 })
 
 function openRecordDetail(row) {

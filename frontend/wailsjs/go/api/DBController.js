@@ -10,6 +10,10 @@ export function CheckConnect() {
   return window['go']['api']['DBController']['CheckConnect']();
 }
 
+export function ClearInterfaceRecord() {
+  return window['go']['api']['DBController']['ClearInterfaceRecord']();
+}
+
 export function Connect(arg1) {
   return window['go']['api']['DBController']['Connect'](arg1);
 }

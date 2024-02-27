@@ -7,6 +7,8 @@ export function AutoMigrate():Promise<void>;
 
 export function CheckConnect():Promise<void>;
 
+export function ClearInterfaceRecord():Promise<void>;
+
 export function Connect(arg1:string):Promise<void>;
 
 export function CreateInterface(arg1:models.Interface):Promise<models.Interface>;

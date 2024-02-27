@@ -10,7 +10,7 @@
       </t-row>
     </template>
     <template #body>
-      <t-tabs default-value="mapRules" placement="top">
+      <t-tabs default-value="mapRules" placement="top" @change="onTabChange">
         <t-tab-panel label="编辑规则" value="mapRules">
           <div style="margin-top: 8px;">
             <t-row v-for="(item, index) in interfacesStore.platform.ReplaceMaps" :gutter="5" style="margin-top: 4px;"
@@ -56,8 +56,7 @@
                   @click="openBatchDialog(interfacesStore.platform.ReplaceMaps)">批量导入</t-link>
                 <t-link size="small" style="margin-left: 4px;" theme="primary"
                   @click="ruleFullStatus(false)">全部启用</t-link>
-                <t-link size="small" style="margin-left: 4px;" theme="danger"
-                  @click="ruleFullStatus(true)">全部禁用</t-link>
+                <t-link size="small" style="margin-left: 4px;" theme="danger" @click="ruleFullStatus(true)">全部禁用</t-link>
               </t-col>
             </t-row>
           </div>
@@ -71,17 +70,25 @@
                     <t-tag size="medium" shape="mark" theme="primary" variant="outline">优先级: {{ interface_.Prior
                     }}</t-tag>
                     <div style="margin-left: 10px;"> {{ interface_.Name }} </div>
-                    <t-button style="margin-left: 10px;" variant="outline" theme="primary" size="small" @click="runInterface(interface_)">运行接口</t-button>
-
                   </template>
                   <template #headerRightContent>
-                    <ChevronUpIcon @click="sortInterface('up', interface_)" size="18" style="cursor: pointer" />
-                    <ChevronDownIcon @click="sortInterface('down', interface_)" size="18" style="cursor: pointer" />
-                    <DeleteIcon @click="deleteInterfaces(index, interface_)" style="cursor: pointer" />
+                    <t-tooltip content="运行">
+                      <PlayIcon @click="runInterface(interface_)" size="18"
+                        style="cursor: pointer; color: var(--td-brand-color-7);" />
+                    </t-tooltip>
+                    <t-tooltip content="上移">
+                      <ChevronUpIcon @click="sortInterface('up', interface_)" size="18" style="cursor: pointer" />
+                    </t-tooltip>
+                    <t-tooltip content="下移">
+                      <ChevronDownIcon @click="sortInterface('down', interface_)" size="18" style="cursor: pointer" />
+                    </t-tooltip>
+                    <t-tooltip content="删除">
+                      <DeleteIcon @click="deleteInterfaces(index, interface_)"
+                        style="cursor: pointer; color: var(--td-error-color);" />
+                    </t-tooltip>
                   </template>
                   <InterfaceConfigForm v-if="!interfacesStore.platform.Interfaces[index].IsGroup"
                     v-model:interface-form="interfacesStore.platform.Interfaces[index]" />
-
                   <InterfaceGroupForm v-if="interfacesStore.platform.Interfaces[index].IsGroup"
                     v-model:interface-form="interfacesStore.platform.Interfaces[index]" />
                 </t-collapse-panel>
@@ -97,30 +104,33 @@
             </t-button>
           </t-dropdown>
         </t-tab-panel>
+        <t-tab-panel label="运行记录" value="records"> <InterfaceRecordPage /></t-tab-panel>
+        <t-tab-panel label="测试缓存" value="caches"><CacheView /> </t-tab-panel>
       </t-tabs>
     </template>
   </t-dialog>
-
   <BatchImportDialog />
 </template>
 
 <script lang="jsx" setup>
-import { DialogPlugin, Input, MessagePlugin } from "tdesign-vue-next";
+import { DialogPlugin, MessagePlugin } from "tdesign-vue-next";
 import InterfaceGroupForm from "./InterfaceGroupForm.vue";
 import InterfaceConfigForm from "./InterfaceConfigForm.vue";
 import { CreateInterface, DeleteInterfaces, UpdateInterface, UpdatePlatform } from "../../../wailsjs/go/api/DBController.js";
-import { AddCircleIcon, AddIcon, DeleteIcon, ChevronUpIcon, ChevronDownIcon, CheckRectangleFilledIcon } from "tdesign-icons-vue-next";
-import { onMounted, ref, watch } from "vue";
-import { useInterfacesStore, usePlatformStore } from "@/src/store/platform"
+import {  AddIcon, DeleteIcon, ChevronUpIcon, ChevronDownIcon, PlayIcon } from "tdesign-icons-vue-next";
+import { ref, watch } from "vue";
+import { useInterfacesStore, usePlatformStore, useInterfaceRecordsStore, useBatchImportStore } from "@/src/store/platform"
 import BatchImportDialog from "../Components/BatchImportDialog.vue";
-import { useBatchImportStore } from '@/src/store/platform'
-import CheckSelect from "./Components/CheckSelect.vue";
+import CheckSelect from "./components/CheckSelect.vue";
+import CacheView from "./components/CacheView.vue"
 import { EventsOff, EventsOn } from "@/wailsjs/runtime/runtime";
-import { TestInterface } from "@/wailsjs/go/api/ATController";
+import { TestInterface, DeleteTestNetControllerCache, GetTestNetControllerInfo} from "@/wailsjs/go/api/ATController";
+import InterfaceRecordPage from "../InterfaceRecords/InterfaceRecordPage.vue";
 
 const batchImportStore = useBatchImportStore()
 const interfacesStore = useInterfacesStore()
 const platformStore = usePlatformStore()
+const interfaceRecordStore = useInterfaceRecordsStore()
 
 const clickBtn = ref("")
 let oldForm = undefined
@@ -157,6 +167,17 @@ function onClose() {
   } else {
     interfacesStore.visible = false
     clickBtn.value = ""
+  }
+}
+
+function onTabChange(tabValue) {
+  console.log("当前标签[tab]: ", tabValue)
+  if (tabValue === "caches") {
+    GetTestNetControllerInfo().then((result)=>{
+      interfaceRecordStore.testCaches = result
+    }).catch((err)=>{
+      MessagePlugin.error("获取缓存失败: "+err)
+    })
   }
 }
 
@@ -293,18 +314,16 @@ function replaceInterfaceAttr(arr, Key, Value) {
 }
 
 function runInterface(interfaceInfo) {
-    console.log("in runInterface")
-  TestInterface(interfacesStore.platform, interfaceInfo).then((result)=>{
-    console.log("runInterface", result)
-  }).catch((err)=>{
-
-    console.log("err", err)
+  MessagePlugin.info("运行接口: "+interfaceInfo.Name)
+  TestInterface(interfacesStore.platform, interfaceInfo).then(() => {
+    MessagePlugin.success("接口运行完毕: "+interfaceInfo.Name)
+  }).catch((err) => {
+    MessagePlugin.error("运行失败："+err)
   })
 }
 
-EventsOn("UpdateTestNetworkPool", (result)=>{
-  console.log("UpdateTestNetworkPool", result)
-})
+
+
 </script>
 
 <style scoped></style>

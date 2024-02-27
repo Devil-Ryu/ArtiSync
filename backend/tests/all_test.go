@@ -6,7 +6,6 @@ import (
 	"ArtiSync/backend/utils"
 	"fmt"
 	"net/url"
-	"strings"
 	"testing"
 	"time"
 )
@@ -73,57 +72,12 @@ func TestDB(t *testing.T) {
 	dbController := api.NewDBController()
 	dbController.Connect("/Users/ryu/Documents/test.db")
 
-	// tmp := map[string]interface{}{
-	// 	"record_id":     "VGIs83uE",
-	// 	"platform_name": "MYBLOG",
-	// 	"serial":        "sW5OnfAB",
-	// }
-	// test, _ := dbController.GetInterfaceRecords(tmp)
-
-	// fmt.Println(test)
-	query := map[string]interface{}{
-		"record_id":     "8lX4oeOV",
-		"date_time":     []string{"2024-02-18 00:00:00", "2024-02-20 23:59:59"},
-		"platform_name": []string{"MYBLOG"},
-	}
-
-	queryList := []string{}
-	queryParams := []interface{}{}
-
-	for key, value := range query {
-		// 判断该value值是否通过参数校验
-		switch key {
-		case "record_id":
-			tmp, ok := value.(string)
-			if ok {
-				appendQuery(&queryList, &queryParams, "record_id = ?", tmp)
-			}
-		case "date_time":
-			tmp, ok := value.([]string)
-			tmpList := []interface{}{}
-			for _, item := range tmp {
-				tmpList = append(tmpList, item)
-			}
-			if ok {
-				appendQuery(&queryList, &queryParams, "date_time between ? and ?", tmpList...)
-			}
-		case "platform_name":
-			tmp, ok := value.([]string)
-			if ok {
-				appendQuery(&queryList, &queryParams, "platform_name in ?", tmp)
-			}
-		}
-	}
-
-	querySQL := strings.Join(queryList, " and ")
-	fmt.Println(querySQL)
-	fmt.Println(queryParams)
-
-	var result []models.InterfaceRecord
-
-	dbController.DB.Where(querySQL, queryParams...).Find(&result)
-	fmt.Println(len(result))
+	interfaceInfo, err := dbController.GetInterface(models.Interface{Serial: "hEqbDdM2"})
 	// fmt.Println(result)
+	if err != nil {
+		fmt.Println("接口获取错误：%w", err)
+	}
+	fmt.Println("interfaceInfo", interfaceInfo)
 }
 
 func appendQuery(queryList *[]string, queryParams *[]interface{}, querySQL string, value ...interface{}) {

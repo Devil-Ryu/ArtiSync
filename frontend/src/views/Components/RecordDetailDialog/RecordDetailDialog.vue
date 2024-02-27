@@ -45,7 +45,7 @@
                 <t-col>
                     <div style="display: flex;align-items: center;">
                         <t-tooltip content="复制报文">
-                            <FileCopyIcon :size="20" style="margin-right: 10px; color: gray; cursor: pointer;"
+                            <FileCopyIcon size="20" style="margin-right: 10px; color: gray; cursor: pointer;"
                             @click="copyToClipboard" />
                         </t-tooltip>
                        
@@ -75,10 +75,8 @@ const contentType = ref('UTF-8')
 const bodyType = ref('Request')
 const bodyContent = computed(() => {
     if (bodyType.value == "Request") {
-        console.log("Request")
         return interfaceRecordsStore.curRecord.RequestMessage
     } else {
-        console.log("Response")
         return interfaceRecordsStore.curRecord.ResponseMessage
     }
 })
