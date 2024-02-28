@@ -6,6 +6,7 @@ import (
 	"ArtiSync/backend/utils"
 	"fmt"
 	"net/url"
+	"regexp"
 	"testing"
 	"time"
 )
@@ -78,6 +79,17 @@ func TestDB(t *testing.T) {
 		fmt.Println("接口获取错误：%w", err)
 	}
 	fmt.Println("interfaceInfo", interfaceInfo)
+}
+
+func TestRE(t *testing.T) {
+	testStr := "设置一段文本![image1](images/test1)这是第二段文本![image2](images/test2)\n这是第三段文本![image2](images/test2)"
+	reg := regexp.MustCompile(utils.ImgPattern)
+	result := reg.FindAll([]byte(testStr), -1)
+	s := reg.ReplaceAll([]byte(testStr), []byte("${2}AAAAA"))
+	for _, item := range result {
+		fmt.Println(string(item))
+	}
+	fmt.Println(string(s))
 }
 
 func appendQuery(queryList *[]string, queryParams *[]interface{}, querySQL string, value ...interface{}) {

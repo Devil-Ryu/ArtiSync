@@ -16,12 +16,13 @@ const ImgPattern string = "(\\!\\[(.*?)\\]\\((.*?)\\))"
 
 // ImageInfo 图片信息结构体
 type ImageInfo struct {
-	Line           int
-	Title          string
-	URL            string
-	Image          []byte
-	UploadURL      string
-	UploadPlatform []string
+	Line           int      // 图片在原文的索引
+	Title          string   // 图片的名称[title](title)
+	URL            string   // 图片的链接[title](url)
+	CurURL         string   // 图片的当前链接
+	Image          []byte   // 图片二进制流
+	UploadURL      string   // 上传后的链接
+	UploadPlatform []string // 图片上传的平台（废弃：暂时没用）
 }
 
 // MarkdownTool 解析器结构体
@@ -63,7 +64,7 @@ func (m *MarkdownTool) extractImages(markdownLines []string) (imagesInfo []Image
 	for index, line := range markdownLines {
 		results := re.FindAllStringSubmatch(line, -1)
 		for _, result := range results {
-			imagesInfo = append(imagesInfo, ImageInfo{Line: index, Title: result[2], URL: result[3]})
+			imagesInfo = append(imagesInfo, ImageInfo{Line: index, Title: result[2], URL: result[3], CurURL: result[3]})
 		}
 	}
 	return imagesInfo, nil
@@ -84,9 +85,10 @@ func (m *MarkdownTool) loadImages() error {
 
 // ReplaceImages 替换图片
 func (m *MarkdownTool) ReplaceImages() {
-	for _, imgInfo := range m.ImagesInfo {
+	for imgIndex, imgInfo := range m.ImagesInfo {
 		index := imgInfo.Line
-		m.MarkdownLines[index] = strings.Replace(m.MarkdownLines[index], imgInfo.URL, imgInfo.UploadURL, 1)
+		m.MarkdownLines[index] = strings.Replace(m.MarkdownLines[index], imgInfo.CurURL, imgInfo.UploadURL, 1) // 替换为上传链接
+		m.ImagesInfo[imgIndex].CurURL = imgInfo.UploadURL                                                      // 替换后更新当前链接
 	}
 }
 

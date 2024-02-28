@@ -22,10 +22,17 @@ export const useInterfacesStore = defineStore('interface', ()=>{
     const options = computed(()=>{
         var tmp = [
             {
-              label: "文章信息", value: "0", children:
+              label: "文章信息", value: "ART", children:
                 [
-                  { label: "文章内容", value: "0.article" },
-                  { label: "文章名称", value: "0.title" },
+                  { label: "文章名称", value: "ART-TITLE" },
+                  { label: "文章内容", value: "ART-CONTENT-STR" },
+                ]
+            },
+            {
+              label: "图片信息", value: "IMG", children:
+                [
+                  { label: "图片名称", value: "IMG-TITLE" },
+                  { label: "图片内容[STR]", value: "IMG-CONTENT-STR" },
                 ]
             }
           ]

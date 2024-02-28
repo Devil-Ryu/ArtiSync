@@ -4,7 +4,6 @@ import (
 	artlog "ArtiSync/backend/logger"
 	"ArtiSync/backend/models"
 	"ArtiSync/backend/utils"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -200,6 +199,22 @@ func (a *ATController) LoadArticles(filePath string, imagePath string) utils.Res
 		}
 	}
 
+	// 导入后将第一个文章用作测试
+	if len(a.ArticleList) > 0 {
+		err = a.ArticleList[0].MarkdownTool.AnalyzeMarkdown() // 重新分析markdown数据（重置MaikdownLines状态, imagesInfo状态）
+		if err != nil {
+			errMsg := fmt.Errorf("测试文章分析失败[%s]: %w", a.ArticleList[0].Title, err).Error()
+			a.Print(artlog.ERROR, "文章控制器", errMsg)
+			return utils.ResponseJSON{StatusCode: 500, Data: nil, Message: errMsg}
+		}
+
+		// 将文章转化为字符串放入网络请求池中
+		a.TestNetController.ResponsePool["ART-TITLE"] = a.ArticleList[0].Title
+		a.TestNetController.ResponsePoolType["ART-TITLE"] = "TEXT"
+		a.TestNetController.ResponsePool["ART-CONTENT-STR"] = strings.Join(a.ArticleList[0].MarkdownTool.MarkdownLines, "\n")
+		a.TestNetController.ResponsePoolType["ART-CONTENT-STR"] = "TEXT"
+	}
+
 	// articleList := []string{}
 	// for index, article := range a.ArticleList {
 	// 	articleList = append(articleList, fmt.Sprintf("%d: %s[%03d]", index, article.Title, len(article.MarkdownTool.ImagesInfo)))
@@ -224,7 +239,6 @@ func (a *ATController) GenArticleDetail(articleIndex int) {
 	platforms, _ := a.DBController.GetPlatforms(map[string]interface{}{"Disabled": false})
 
 	for index, platform := range platforms {
-		fmt.Println("platform.Name:", platform.Name)
 		// 基础信息中添加平台名称
 		article.BasicInfo.Platforms = append(article.BasicInfo.Platforms, platform.Name)
 
@@ -301,13 +315,19 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 	if interfaceType == "images" {
 		// 遍历图片
 		for index, imageInfo := range article.MarkdownTool.ImagesInfo {
+			// 遍历图片时，将图片信息写入网络控制器缓存
+			netController.ResponsePool["IMG-TITLE"] = imageInfo.URL
+			netController.ResponsePoolType["IMG-TITLE"] = "TEXT"
+			netController.ResponsePool["IMG-CONTENT-STR"] = string(imageInfo.Image)
+			netController.ResponsePoolType["IMG-CONTENT-STR"] = "TEXT"
+
 			// 遍历每个接口(穿过来的一般是children)
 			for _, interfaceInfo := range interfaces {
 				// 接口放入文件参数
 				tmpInterfaceInfo := interfaceInfo
-				if tmpInterfaceInfo.Type == "images" { // 如果子接口为图片接口
-					tmpInterfaceInfo.RequestBody = append(interfaceInfo.RequestBody, models.Body{IsFile: true, FileName: imageInfo.URL, Key: "file", Value: string(imageInfo.Image)})
-				}
+				// if tmpInterfaceInfo.Type == "images" { // 如果子接口为图片接口
+				// 	tmpInterfaceInfo.RequestBody = append(interfaceInfo.RequestBody, models.Body{IsFile: true, FileName: imageInfo.URL, Key: "file", Value: string(imageInfo.Image)})
+				// }
 				netController.SetInterface(tmpInterfaceInfo)
 				// 记录接口运行
 				tmpRecord := models.InterfaceRecord{Tag: fmt.Sprint(index + 1), Status: utils.Running}
@@ -343,13 +363,11 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 		article.MarkdownTool.ReplaceImages() // 替换链接
 
 		// 将替换后的文章转化为字符串放入网络请求池中
-		content := map[string]string{
-			"article": strings.Join(article.MarkdownTool.MarkdownLines, "\n"),
-			"title":   article.Title,
-		}
-		data, _ := json.Marshal(content)
-		netController.ResponsePool["0"] = string(data)
-		netController.ResponsePoolType["0"] = "JSON" // 设置接口返回类型为JSON
+		netController.ResponsePool["ART-TITLE"] = article.Title
+		netController.ResponsePoolType["ART-TITLE"] = "TEXT"
+		netController.ResponsePool["ART-CONTENT-STR"] = strings.Join(a.ArticleList[articleIndex].MarkdownTool.MarkdownLines, "\n")
+		netController.ResponsePoolType["ART-CONTENT-STR"] = "TEXT"
+
 	} else {
 		// 遍历每个接口并运行（一般不是images，只传一个接口过来）
 		for index, interfaceInfo := range interfaces {
@@ -399,29 +417,14 @@ func (a *ATController) SetProxyURL(proxURL string) {
 // TestInterface 测试接口
 func (a *ATController) TestInterface(platform models.Platform, interfaceInfo models.Interface) error {
 	a.TestNetController.SetProxyURL(a.ProxyURL) // 设置代理
+
+	// 第一次运行生成（放到加载文章中）
 	if len(a.ArticleList) <= 0 {
 		return fmt.Errorf("未发现文章")
 	}
-	err := a.ArticleList[0].MarkdownTool.AnalyzeMarkdown() // 重新分析markdown数据（重置MaikdownLines状态, imagesInfo状态）
-	if err != nil {
-		return fmt.Errorf("文章分析失败")
-	}
 
-	// 将文章转化为字符串放入网络请求池中
-	content := map[string]string{
-		"article": strings.Join(a.ArticleList[0].MarkdownTool.MarkdownLines, "\n"),
-		"title":   a.ArticleList[0].Title,
-	}
-	data, err := json.Marshal(content)
-	if err != nil {
-		return fmt.Errorf("文章格式转化失败")
-	}
-
-	a.TestNetController.ResponsePool["0"] = string(data)
-	a.TestNetController.ResponsePoolType["0"] = "JSON" // 设置接口返回类型为JSON
 	a.InterfaceRecordID = "TEST"
 	a.GenArticleDetail(0) // 运行的时候，重置基本信息
-
 	if interfaceInfo.IsGroup {
 		// 如果为组则执行子接口列表
 		runErr := a.runInterfaces(a.TestNetController, platform, 0, interfaceInfo.Children, interfaceInfo.Type)
@@ -453,17 +456,19 @@ func (a *ATController) GetTestNetControllerInfo() ([]map[string]string, error) {
 	// 遍历响应池
 	result := []map[string]string{}
 	for serial, response := range a.TestNetController.ResponsePool {
-		fmt.Println("serial: ", serial)
 		var interfaceName string
-		if serial != "0" {
+		if serial == "0" {
+			interfaceName = "文章信息"
+		} else if serial == "1" {
+			interfaceName = "图片信息"
+		} else {
 			interfaceInfo, err := a.DBController.GetInterface(models.Interface{Serial: serial})
 			if err != nil {
 				return []map[string]string{}, fmt.Errorf("接口获取错误：%w", err)
 			}
 			interfaceName = interfaceInfo.Name
-		} else {
-			interfaceName = "文章信息"
 		}
+
 		tmp := map[string]string{
 			"Serial":      serial,
 			"Name":        interfaceName,
@@ -523,21 +528,12 @@ func (a *ATController) Run() utils.ResponseJSON {
 			netController := utils.NewNetWorkController()
 			netController.SetProxyURL(a.ProxyURL) // 设置代理
 			// 将文章转化为字符串放入网络请求池中
-			content := map[string]string{
-				"article": strings.Join(a.ArticleList[articleIndex].MarkdownTool.MarkdownLines, "\n"),
-				"title":   a.ArticleList[articleIndex].Title,
-			}
-			data, err := json.Marshal(content)
-			if err != nil {
-				errMsg := fmt.Errorf("文章信息转失败[%s]: %w", aritcle.Title, err).Error()
-				a.Print(artlog.ERROR, "文章控制器", errMsg)
-				a.ArticleList[articleIndex].Status = utils.PublishedFailed // 更新文章状态
-				a.UpdateArticleDetail(articleIndex, platform)              // 更新文章状态
-				continue                                                   // 如果报错则开始下一个平台
-			}
-			netController.ResponsePool["0"] = string(data)
-			netController.ResponsePoolType["0"] = "JSON" // 设置接口返回类型为JSON
-			a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "articleName":"%s", "content":%s}`, platform.Name, aritcle.Title, string(data)))
+			netController.ResponsePool["ART-TITLE"] = a.ArticleList[articleIndex].Title
+			netController.ResponsePoolType["ART-TITLE"] = "TEXT"
+			netController.ResponsePool["ART-CONTENT-STR"] = strings.Join(a.ArticleList[articleIndex].MarkdownTool.MarkdownLines, "\n")
+			netController.ResponsePoolType["ART-CONTENT-STR"] = "TEXT"
+
+			a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "articleName":"%s", "content":%s}`, platform.Name, aritcle.Title, strings.Join(a.ArticleList[articleIndex].MarkdownTool.MarkdownLines, "\n")))
 
 			// 遍历接口
 			var interfaceErr error // 查看遍历接口时是否有接口出错

@@ -133,16 +133,26 @@
                     :status="replaceFilter(props.interfaceForm.Serial, 'Body', item.Key)?linkTheme:defaultTheme"
                   />
                 </t-col>
-                <t-col flex="auto">
+                <t-col flex="auto"  v-if="item.IsFile">
+                  <!-- <t-input v-model="item.FileName" placeholder="文件名称" /> -->
                   <DynamicValue
+                  placeholder="请输入文件名称"
                     v-model:item="props.interfaceForm.RequestBody[index]"
+                    Dynamic="FileNameDynamic"
+                    Value="FileName"
                     v-model:cascaderOptions="interfacesStore.options"
                     :status="replaceFilter(props.interfaceForm.Serial, 'Body', item.Key)?linkTheme:defaultTheme"
                     :disabled="replaceFilter(props.interfaceForm.Serial, 'Body', item.Key)"
                   />
                 </t-col>
-                <t-col flex="auto"  v-if="item.IsFile">
-                  <t-input v-model="item.FileName" placeholder="文件名称" />
+                <t-col flex="auto">
+                  <DynamicValue
+                    placeholder="请输入值"
+                    v-model:item="props.interfaceForm.RequestBody[index]"
+                    v-model:cascaderOptions="interfacesStore.options"
+                    :status="replaceFilter(props.interfaceForm.Serial, 'Body', item.Key)?linkTheme:defaultTheme"
+                    :disabled="replaceFilter(props.interfaceForm.Serial, 'Body', item.Key)"
+                  />
                 </t-col>
                 <t-col flex="none">
                   <t-space :size="5">

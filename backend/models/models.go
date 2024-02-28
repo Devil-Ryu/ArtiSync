@@ -87,14 +87,15 @@ type Query struct {
 
 // Body 请求体
 type Body struct {
-	ID          uint `gorm:"primaryKey"`
-	InterfaceID uint
-	IsFile      bool   `gorm:"default:false"` // 是否为文件
-	FileName    string // 文件名称
-	Convert     bool   `gorm:"default:false"`
-	Dynamic     bool   `gorm:"default:false"` // 参数是否动态获取（默认为false,如果为其他的，会修改对应位置的值）
-	Key         string // 键
-	Value       string // 值
+	ID              uint `gorm:"primaryKey"`
+	InterfaceID     uint
+	IsFile          bool   `gorm:"default:false"` // 是否为文件
+	FileName        string // 文件名称
+	FileNameDynamic bool   `gorm:"default:false"` // 文件名称
+	Convert         bool   `gorm:"default:false"`
+	Dynamic         bool   `gorm:"default:false"` // 参数是否动态获取（默认为false,如果为其他的，会修改对应位置的值）
+	Key             string // 键
+	Value           string // 值
 }
 
 // InterfaceRecord 接口运行记录

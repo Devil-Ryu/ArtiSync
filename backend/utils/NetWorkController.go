@@ -4,6 +4,7 @@ import (
 	"ArtiSync/backend/models"
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -61,6 +62,22 @@ func (n *NetWorkController) SetProxyURL(proxURL *url.URL) {
 	n.ProxURL = proxURL
 }
 
+// base64encode base64编码
+func (n *NetWorkController) base64encode(srcBytes []byte) string {
+	encodeStr := base64.StdEncoding.EncodeToString(srcBytes)
+	return encodeStr
+}
+
+// base64encode base64解码
+func (n *NetWorkController) base64decode(encodeStr string) string {
+	decodeStr, err := base64.StdEncoding.DecodeString(encodeStr)
+	if err != nil {
+		fmt.Println("err: ", err.Error())
+	}
+
+	return string(decodeStr)
+}
+
 func (n *NetWorkController) convertValue(inputValue string) (output interface{}) {
 	// 尝试转化为整型
 	output, err := strconv.Atoi(inputValue)
@@ -78,14 +95,15 @@ func (n *NetWorkController) convertValue(inputValue string) (output interface{})
 
 // GetDynamicParam 获取动态参数(修改为判断对应接口的返回值类型)
 func (n *NetWorkController) GetDynamicParam(paramValue string) (retVal string, err error) {
+	paramArr := strings.Split(paramValue, ".") // 转换动态参数为数组
 	var responseType string
-	paramArr := strings.Split(paramValue, ".")     // 转换动态参数为数组
 	responseType = n.ResponsePoolType[paramArr[0]] // 找到对应接口的类型
 	if responseType == "" {
 		return retVal, fmt.Errorf("网络请求池未找到响应类型[%s]", paramArr[0])
 	}
-	// 根据responseType 解析paramValue 1.data.src
-	// 如果是json，根据value[0]找到响应包，并把response转化为json，然后循环遍历value[1:]，取json每一级的值
+
+	retVal = n.ResponsePool[paramArr[0]] // 默认直接返回响应池中的值
+	// 如果是json，根据value[0]找到响应包，并把response转化为json，然后用gjson去到对应的值，根据responseType 解析paramValue 1.data.src
 	if responseType == "JSON" {
 		responseJSON := gjson.Parse(n.ResponsePool[paramArr[0]]) // 在响应池中根据接口ID找到对应接口响应，转化为GJSON格式
 		if !responseJSON.Exists() {
@@ -112,20 +130,18 @@ func (n *NetWorkController) GetDynamicParam(paramValue string) (retVal string, e
 		// fmt.Println("[*] 参数路径：", paramPath)
 		fmt.Println("[*] 参数长度：", len(paramArr))
 		fmt.Println("[*] 返回值长度： ", len(retVal))
+
+		if !strings.HasPrefix(retVal, `"`) && !strings.HasPrefix(retVal, `'`) {
+			retVal = strconv.Quote(retVal) // 加上引号，处理部分返回不是字符串的情况
+		}
+		retVal, _ = strconv.Unquote(retVal) // 去除转义字符和引号，因为json序列化的时候会转义
 	}
 
-	// 去除返回值两端点的引号
-	// retVal = strings.Trim(retVal, `"`)
-	if !strings.HasPrefix(retVal, `"`) && !strings.HasPrefix(retVal, `'`) {
-		retVal = strconv.Quote(retVal) // 加上引号，处理部分返回不是字符串的情况
-	}
-	retVal, _ = strconv.Unquote(retVal) // 去除转义字符和引号，因为json对时候还会序列化
-
-	if len(retVal) > 20 {
-		fmt.Println("[*] 返回值>20： ", retVal[:10])
-	} else {
-		fmt.Println("[*] 返回值<20： ", retVal)
-	}
+	// if len(retVal) > 20 {
+	// 	fmt.Println("[*] 返回值>20： ", retVal[:10])
+	// } else {
+	// 	fmt.Println("[*] 返回值<20： ", retVal)
+	// }
 
 	return retVal, nil
 }
@@ -241,20 +257,40 @@ func (n *NetWorkController) ParseBody(bodyType string, bodyData []models.Body) (
 				// 动态参数逻辑
 				itemValue, err := n.GetDynamicParam(item.Value) // 获取动态参数
 				if err != nil {
-					return requestData, contentType, fmt.Errorf("Err|ParseBody: %w", err)
+					return requestData, contentType, fmt.Errorf("解析BODY错误: %w", err)
 				}
+
+				// 判断文件名是否为动态
+				fileName := item.FileName // 默认文件名为填入的名称
+				if item.FileNameDynamic {
+					fileName, err = n.GetDynamicParam(item.FileName) // 获取动态参数
+					if err != nil {
+						return requestData, contentType, fmt.Errorf("解析BODY错误: %w", err)
+					}
+				}
+
 				if item.IsFile {
-					part, _ := writer.CreateFormFile(item.Key, item.FileName) // 创建文件表单
-					part.Write([]byte(itemValue))                             // 写入文件内容
+					part, _ := writer.CreateFormFile(item.Key, fileName) // 创建文件表单
+					part.Write([]byte(itemValue))                        // 写入文件内容
 					body.Write([]byte(fmt.Sprintf("\r\n--%s--\r\n", writer.Boundary())))
 				} else {
 					writer.WriteField(item.Key, itemValue) // 写入非文件内容
 				}
 			} else {
 				// 非动态参数逻辑
+
+				// 判断文件名是否为动态
+				fileName := item.FileName // 默认文件名为填入的名称
+				if item.FileNameDynamic {
+					fileName, err = n.GetDynamicParam(item.FileName) // 获取动态参数
+					if err != nil {
+						return requestData, contentType, fmt.Errorf("解析BODY错误: %w", err)
+					}
+				}
+
 				if item.IsFile {
-					part, _ := writer.CreateFormFile(item.Key, item.FileName) // 创建文件表单
-					part.Write([]byte(item.Value))                            // 写入文件内容
+					part, _ := writer.CreateFormFile(item.Key, fileName) // 创建文件表单
+					part.Write([]byte(item.Value))                       // 写入文件内容
 					body.Write([]byte(fmt.Sprintf("\r\n--%s--\r\n", writer.Boundary())))
 				} else {
 					writer.WriteField(item.Key, item.Value) // 写入非文件内容
@@ -336,6 +372,18 @@ func (n *NetWorkController) GetRequest() (request *http.Request, err error) {
 
 	return request, nil
 
+}
+
+// storeToPool 存进储存池
+func (n *NetWorkController) storeToPool(key string, value []byte, valueType string) {
+	valueType = strings.ToUpper(valueType) // 统一转化为大写
+
+	// // 处理存储值为JSON的情况
+	// if valueType == "JSON" {
+	// 	valueStr := string(value)  // 先将value转化为字符串
+	// 	gjson
+
+	// }
 }
 
 // Run 网络请求模块运行方法
