@@ -41,7 +41,7 @@ const articleStore = useArticleStore()
 
 const columns = ref([
   {colKey: 'Index', title: '序号', align: 'center'},
-  {colKey: 'Title', title: '文章名称', ellipsisTitle: true},
+  {colKey: 'Title', title: '文章名称', ellipsis: true},
   {colKey: 'Progress', title: '上传进度',
     cell: (h, { row}) => {
     return (<t-progress theme="line" percentage={row.Progress} />)
