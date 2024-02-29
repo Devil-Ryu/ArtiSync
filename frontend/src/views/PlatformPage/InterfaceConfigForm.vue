@@ -121,7 +121,7 @@
             <t-row :gutter="5">
               <t-col  class="input-list-key">
                 <t-select 
-                  :options="['JSON', 'ROWDATA', 'FORMDATA', 'NONE'].map((value) => ({ label: value, value }))"
+                  :options="['JSON', 'JSONTEXT', 'ROWDATA', 'FORMDATA', 'NONE'].map((value) => ({ label: value, value }))"
                   v-model="props.interfaceForm.RequestBodyType" />
               </t-col>
             </t-row>
@@ -284,22 +284,6 @@ const responseMapTypeOptions = [
   { label: 'NONE', value: 'NONE' },
   { label: 'RE', value: 'RE' },
 ]
-
-// const batchImportDialogVisible = ref(false)
-// const batchImportSelectOptions = [
-//   { label: 'JSON格式', value: 'JSON' },
-//   { label: 'ROWDATA格式', value: 'ROWDATA' },
-//   // { label: 'SQLITE文件格式', value: 'SQLITE' },
-// ]
-// const batchImportContentPlaceholder =
-// {
-//   "JSON": "{'key':'value'}",
-//   "ROWDATA": "key1=value1\nkey2=value2",
-//   "SQLITE": "Sqlite文件",
-// }
-// const batchImportDialogSelectValue = ref("JSON")
-// const batchImportDialogContent = ref("")
-// const batchImportArr = ref([])
 
 
 function arrAdd(arr) {

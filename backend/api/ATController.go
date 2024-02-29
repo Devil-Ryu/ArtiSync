@@ -4,6 +4,7 @@ import (
 	artlog "ArtiSync/backend/logger"
 	"ArtiSync/backend/models"
 	"ArtiSync/backend/utils"
+	"encoding/hex"
 	"fmt"
 	"net/url"
 	"os"
@@ -227,7 +228,8 @@ func (a *ATController) LoadArticles(filePath string, imagePath string) utils.Res
 func (a *ATController) GenArticleDetail(articleIndex int) {
 	article := &a.ArticleList[articleIndex]
 
-	article.BasicInfo = ArticleBasicInfo{} // 清空基本信息
+	article.BasicInfo = ArticleBasicInfo{}                        // 清空基本信息
+	article.PlatformsInfo = make(map[string]*ArticlePlatformInfo) // 清空基本信息
 
 	// 基本信息
 	article.BasicInfo.Title = article.Title
@@ -248,6 +250,10 @@ func (a *ATController) GenArticleDetail(articleIndex int) {
 		article.PlatformsInfo[platform.Name].Index = index
 		article.PlatformsInfo[platform.Name].RunStatus = utils.PublishWating
 		for _, interfacesInfo := range platform.Interfaces {
+			// 不统计禁用的接口
+			if interfacesInfo.Disabled {
+				continue
+			}
 			// 如果为组，则遍历子接口
 			if interfacesInfo.IsGroup {
 				// 计算接口组需要运行的次数
@@ -320,14 +326,17 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 			netController.ResponsePoolType["IMG-TITLE"] = "TEXT"
 			netController.ResponsePool["IMG-CONTENT-STR"] = string(imageInfo.Image)
 			netController.ResponsePoolType["IMG-CONTENT-STR"] = "TEXT"
+			netController.ResponsePool["IMG-CONTENT-HEX"] = hex.EncodeToString(imageInfo.Image)
+			netController.ResponsePoolType["IMG-CONTENT-HEX"] = "TEXT"
 
 			// 遍历每个接口(穿过来的一般是children)
 			for _, interfaceInfo := range interfaces {
+				// 如果接口被禁用，则不执行下列操作
+				if interfaceInfo.Disabled {
+					continue
+				}
 				// 接口放入文件参数
 				tmpInterfaceInfo := interfaceInfo
-				// if tmpInterfaceInfo.Type == "images" { // 如果子接口为图片接口
-				// 	tmpInterfaceInfo.RequestBody = append(interfaceInfo.RequestBody, models.Body{IsFile: true, FileName: imageInfo.URL, Key: "file", Value: string(imageInfo.Image)})
-				// }
 				netController.SetInterface(tmpInterfaceInfo)
 				// 记录接口运行
 				tmpRecord := models.InterfaceRecord{Tag: fmt.Sprint(index + 1), Status: utils.Running}
@@ -336,6 +345,7 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 					a.ArticleList[articleIndex].PlatformsInfo[platform.Name].InterfaceActualRunNum++ // 更新运行接口数
 					a.UpdateArticleDetail(articleIndex, platform)                                    // 更新文章详情
 				}
+
 				response := netController.Run()
 				if response.StatusCode == 200 {
 					imgURL, err := netController.GetResponseMappedValue() // 获取图片链接
@@ -371,6 +381,10 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 	} else {
 		// 遍历每个接口并运行（一般不是images，只传一个接口过来）
 		for index, interfaceInfo := range interfaces {
+			// 如果接口被禁用，则不执行下列操作
+			if interfaceInfo.Disabled {
+				continue
+			}
 			netController.SetInterface(interfaceInfo)
 
 			tmpRecord := models.InterfaceRecord{Tag: fmt.Sprint(index + 1), Status: utils.Running}
@@ -417,7 +431,6 @@ func (a *ATController) SetProxyURL(proxURL string) {
 // TestInterface 测试接口
 func (a *ATController) TestInterface(platform models.Platform, interfaceInfo models.Interface) error {
 	a.TestNetController.SetProxyURL(a.ProxyURL) // 设置代理
-
 	// 第一次运行生成（放到加载文章中）
 	if len(a.ArticleList) <= 0 {
 		return fmt.Errorf("未发现文章")
@@ -425,22 +438,26 @@ func (a *ATController) TestInterface(platform models.Platform, interfaceInfo mod
 
 	a.InterfaceRecordID = "TEST"
 	a.GenArticleDetail(0) // 运行的时候，重置基本信息
-	if interfaceInfo.IsGroup {
-		// 如果为组则执行子接口列表
-		runErr := a.runInterfaces(a.TestNetController, platform, 0, interfaceInfo.Children, interfaceInfo.Type)
-		if runErr != nil {
-			errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr).Error()
-			a.Print(artlog.ERROR, "测试控制器", errMsg)
-			return fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr)
+	if !interfaceInfo.Disabled {
+		if interfaceInfo.IsGroup {
+			// 如果为组则执行子接口列表
+			runErr := a.runInterfaces(a.TestNetController, platform, 0, interfaceInfo.Children, interfaceInfo.Type)
+			if runErr != nil {
+				errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr).Error()
+				a.Print(artlog.ERROR, "测试控制器", errMsg)
+				return fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr)
+			}
+		} else {
+			// 如果不为组则执行接口（接口执行： 判断接口是否为图片->循环执行接口， 否->执行接口）
+			runErr := a.runInterfaces(a.TestNetController, platform, 0, []models.Interface{interfaceInfo}, interfaceInfo.Type)
+			if runErr != nil {
+				errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr).Error()
+				a.Print(artlog.ERROR, "测试控制器", errMsg)
+				return fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr)
+			}
 		}
 	} else {
-		// 如果不为组则执行接口（接口执行： 判断接口是否为图片->循环执行接口， 否->执行接口）
-		runErr := a.runInterfaces(a.TestNetController, platform, 0, []models.Interface{interfaceInfo}, interfaceInfo.Type)
-		if runErr != nil {
-			errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr).Error()
-			a.Print(artlog.ERROR, "测试控制器", errMsg)
-			return fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, runErr)
-		}
+		return fmt.Errorf("该接口已被禁用")
 	}
 
 	caches, err := a.GetTestNetControllerInfo()
@@ -507,7 +524,7 @@ func (a *ATController) Run() utils.ResponseJSON {
 
 	// 遍历文章列表
 	for articleIndex, aritcle := range a.ArticleList {
-		a.GenArticleDetail(articleIndex)                      // 运行的时候，重置基本信息
+		a.GenArticleDetail(articleIndex)                      // 运行的时候，重置基本信息, 每个文章只调用一次该函数
 		a.ArticleList[articleIndex].Status = utils.Publishing // 更新文章状态
 
 		// 遍历平台列表
@@ -534,10 +551,13 @@ func (a *ATController) Run() utils.ResponseJSON {
 			netController.ResponsePoolType["ART-CONTENT-STR"] = "TEXT"
 
 			a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "articleName":"%s", "content":%s}`, platform.Name, aritcle.Title, strings.Join(a.ArticleList[articleIndex].MarkdownTool.MarkdownLines, "\n")))
-
 			// 遍历接口
 			var interfaceErr error // 查看遍历接口时是否有接口出错
 			for _, interfaceInfo := range platform.Interfaces {
+				// 如果接口被禁用则不执行下述操作
+				if interfaceInfo.Disabled {
+					continue
+				}
 				// 判断接口是否为组（组执行： 判断接口是否为图片->循环执行children， 否->执行children）
 				if interfaceInfo.IsGroup {
 					// 如果为组则执行子接口列表

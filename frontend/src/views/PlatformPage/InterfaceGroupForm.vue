@@ -15,15 +15,32 @@
         <t-collapse expand-icon-placement="right" expand-mutex borderless>
           <div class="input-list" v-for="(interface_, index) in props.interfaceForm.Children">
             <t-card :shadow="true" style="width: 100%;">
-              <t-collapse-panel destroyOnCollapse>
+              <t-collapse-panel destroyOnCollapse :disabled="interface_.Disabled">
                 <template #header>
                   <t-tag size="medium" shape="mark" theme="primary" variant="outline">优先级: {{ interface_.Prior }}</t-tag>
                   <div style="margin-left: 10px;"> {{ interface_.Name }} </div>
                 </template>
                 <template #headerRightContent>
-                  <ChevronUpIcon @click="sortInterface('up', interface_)" size="18" style="cursor: pointer" />
-                  <ChevronDownIcon @click="sortInterface('down', interface_)" size="18" style="cursor: pointer" />
-                  <DeleteIcon @click="deleteInterfaces(index, interface_)" style="cursor: pointer" />
+                  <t-tooltip content="点击启用" v-if="interface_.Disabled">
+                      <LockOnIcon @click="changeInterfaceStatus(interface_)" size="16" style="cursor: pointer; "/>
+                    </t-tooltip>
+                    <t-tooltip content="点击禁用" v-if="!interface_.Disabled">
+                      <LockOffIcon @click="changeInterfaceStatus(interface_)" size="16" style="cursor: pointer;"/>
+                    </t-tooltip>
+                    <t-tooltip content="运行">
+                      <PlayIcon @click="runInterface(interface_)" size="22"
+                        style="cursor: pointer; color: var(--td-brand-color-7);" />
+                    </t-tooltip>
+                    <t-tooltip content="上移">
+                      <ChevronUpIcon @click="sortInterface('up', interface_)" size="22" style="cursor: pointer" />
+                    </t-tooltip>
+                    <t-tooltip content="下移">
+                      <ChevronDownIcon @click="sortInterface('down', interface_)" size="22" style="cursor: pointer" />
+                    </t-tooltip>
+                    <t-tooltip content="删除">
+                      <DeleteIcon @click="deleteInterfaces(index, interface_)"
+                        style="cursor: pointer; color: var(--td-error-color);" />
+                    </t-tooltip>
                 </template>
                 <InterfaceConfigForm v-model:interface-form="props.interfaceForm.Children[index]" />
               </t-collapse-panel>
@@ -41,8 +58,9 @@
 <script setup>
 import { MessagePlugin } from "tdesign-vue-next";
 import InterfaceConfigForm from "./InterfaceConfigForm.vue";
-import { DeleteIcon, ChevronUpIcon, ChevronDownIcon } from "tdesign-icons-vue-next";
-import { CreateInterface, DeleteInterfaces } from "@/wailsjs/go/api/DBController.js";
+import { DeleteIcon, ChevronUpIcon, ChevronDownIcon, PlayIcon, LockOffIcon, LockOnIcon } from "tdesign-icons-vue-next";
+import { CreateInterface, DeleteInterfaces, UpdateInterface } from "@/wailsjs/go/api/DBController.js";
+import { TestInterface } from "@/wailsjs/go/api/ATController";
 import { useInterfacesStore } from "@/src/store/platform"
 const interfacesStore = useInterfacesStore()
 
@@ -119,6 +137,29 @@ function deleteInterfaces(index, interface_) {
   DeleteInterfaces([interface_]).then(result => {
     props.interfaceForm.Children.splice(index, 1)
     MessagePlugin.success('删除成功')
+  })
+
+}
+
+function runInterface(interfaceInfo) {
+  MessagePlugin.info("运行接口: "+interfaceInfo.Name)
+  TestInterface(interfacesStore.platform, interfaceInfo).then(() => {
+    MessagePlugin.success("接口运行完毕: "+interfaceInfo.Name)
+  }).catch((err) => {
+    MessagePlugin.error("运行失败："+err)
+  })
+}
+
+// changeInterfaceStatus 改变接口状态
+function changeInterfaceStatus(interfaceInfo) {
+  interfaceInfo.Disabled = !interfaceInfo.Disabled
+  UpdateInterface([interfaceInfo]).then(result => {
+    if (interfaceInfo.Disabled) {
+      MessagePlugin.error('接口已禁用')
+    } else {
+
+      MessagePlugin.success('接口已启用')
+    }
   })
 
 }

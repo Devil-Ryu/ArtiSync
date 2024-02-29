@@ -32,7 +32,8 @@ export const useInterfacesStore = defineStore('interface', ()=>{
               label: "图片信息", value: "IMG", children:
                 [
                   { label: "图片名称", value: "IMG-TITLE" },
-                  { label: "图片内容[STR]", value: "IMG-CONTENT-STR" },
+                  { label: "图片内容[字符串]", value: "IMG-CONTENT-STR" },
+                  { label: "图片内容[16进制]", value: "IMG-CONTENT-HEX" },
                 ]
             }
           ]

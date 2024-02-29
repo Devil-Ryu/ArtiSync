@@ -24,6 +24,7 @@ type Platform struct {
 // Interface 接口（组）配置
 type Interface struct {
 	ID               uint        `gorm:"primaryKey"`
+	Disabled         bool        `gorm:"default:false"` // 是否禁用
 	PlatformID       uint        // 平台ID
 	Prior            uint        // 接口优先级
 	Serial           string      // 接口编号, 一个平台内接口的内部编号，平台内编号不能重
