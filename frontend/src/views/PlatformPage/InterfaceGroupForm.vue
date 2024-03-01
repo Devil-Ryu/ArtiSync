@@ -37,10 +37,11 @@
                     <t-tooltip content="下移">
                       <ChevronDownIcon @click="sortInterface('down', interface_)" size="22" style="cursor: pointer" />
                     </t-tooltip>
-                    <t-tooltip content="删除">
-                      <DeleteIcon @click="deleteInterfaces(index, interface_)"
-                        style="cursor: pointer; color: var(--td-error-color);" />
-                    </t-tooltip>
+                    <t-popconfirm theme="danger" content="是否确认删除平台" @confirm="deleteInterfaces(index, interface_)">
+                      <t-tooltip content="删除">
+                        <DeleteIcon style="cursor: pointer; color: var(--td-error-color);" />
+                      </t-tooltip>
+                    </t-popconfirm>
                 </template>
                 <InterfaceConfigForm v-model:interface-form="props.interfaceForm.Children[index]" />
               </t-collapse-panel>

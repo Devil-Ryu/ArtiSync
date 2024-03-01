@@ -73,10 +73,10 @@
                   </template>
                   <template #headerRightContent>
                     <t-tooltip content="点击启用" v-if="interface_.Disabled">
-                      <LockOnIcon @click="changeInterfaceStatus(interface_)" size="16" style="cursor: pointer; "/>
+                      <LockOnIcon @click="changeInterfaceStatus(interface_)" size="16" style="cursor: pointer; " />
                     </t-tooltip>
                     <t-tooltip content="点击禁用" v-if="!interface_.Disabled">
-                      <LockOffIcon @click="changeInterfaceStatus(interface_)" size="16" style="cursor: pointer;"/>
+                      <LockOffIcon @click="changeInterfaceStatus(interface_)" size="16" style="cursor: pointer;" />
                     </t-tooltip>
                     <t-tooltip content="运行">
                       <PlayIcon @click="runInterface(interface_)" size="22"
@@ -88,10 +88,12 @@
                     <t-tooltip content="下移">
                       <ChevronDownIcon @click="sortInterface('down', interface_)" size="22" style="cursor: pointer" />
                     </t-tooltip>
-                    <t-tooltip content="删除">
-                      <DeleteIcon @click="deleteInterfaces(index, interface_)"
-                        style="cursor: pointer; color: var(--td-error-color);" />
-                    </t-tooltip>
+
+                    <t-popconfirm theme="danger" content="是否确认删除平台" @confirm="deleteInterfaces(index, interface_)">
+                      <t-tooltip content="删除">
+                        <DeleteIcon style="cursor: pointer; color: var(--td-error-color);" />
+                      </t-tooltip>
+                    </t-popconfirm>
                   </template>
                   <InterfaceConfigForm v-if="!interfacesStore.platform.Interfaces[index].IsGroup"
                     v-model:interface-form="interfacesStore.platform.Interfaces[index]" />
@@ -110,8 +112,12 @@
             </t-button>
           </t-dropdown>
         </t-tab-panel>
-        <t-tab-panel label="运行记录" value="records"> <InterfaceRecordPage /></t-tab-panel>
-        <t-tab-panel label="测试缓存" value="caches"><CacheView /> </t-tab-panel>
+        <t-tab-panel label="运行记录" value="records">
+          <InterfaceRecordPage />
+        </t-tab-panel>
+        <t-tab-panel label="测试缓存" value="caches">
+          <CacheView />
+        </t-tab-panel>
       </t-tabs>
     </template>
   </t-dialog>
@@ -123,14 +129,14 @@ import { DialogPlugin, MessagePlugin } from "tdesign-vue-next";
 import InterfaceGroupForm from "./InterfaceGroupForm.vue";
 import InterfaceConfigForm from "./InterfaceConfigForm.vue";
 import { CreateInterface, DeleteInterfaces, UpdateInterface, UpdatePlatform } from "../../../wailsjs/go/api/DBController.js";
-import {  AddIcon, DeleteIcon, ChevronUpIcon, ChevronDownIcon, PlayIcon, LockOnIcon, LockOffIcon } from "tdesign-icons-vue-next";
+import { AddIcon, DeleteIcon, ChevronUpIcon, ChevronDownIcon, PlayIcon, LockOnIcon, LockOffIcon } from "tdesign-icons-vue-next";
 import { ref, watch } from "vue";
 import { useInterfacesStore, usePlatformStore, useInterfaceRecordsStore, useBatchImportStore } from "@/src/store/platform"
 import BatchImportDialog from "../Components/BatchImportDialog.vue";
 import CheckSelect from "./components/CheckSelect.vue";
 import CacheView from "./components/CacheView.vue"
 import { EventsOff, EventsOn } from "@/wailsjs/runtime/runtime";
-import { TestInterface, DeleteTestNetControllerCache, GetTestNetControllerInfo} from "@/wailsjs/go/api/ATController";
+import { TestInterface, DeleteTestNetControllerCache, GetTestNetControllerInfo } from "@/wailsjs/go/api/ATController";
 import InterfaceRecordPage from "../InterfaceRecords/InterfaceRecordPage.vue";
 
 const batchImportStore = useBatchImportStore()
@@ -179,10 +185,10 @@ function onClose() {
 function onTabChange(tabValue) {
   console.log("当前标签[tab]: ", tabValue)
   if (tabValue === "caches") {
-    GetTestNetControllerInfo().then((result)=>{
+    GetTestNetControllerInfo().then((result) => {
       interfaceRecordStore.testCaches = result
-    }).catch((err)=>{
-      MessagePlugin.error("获取缓存失败: "+err)
+    }).catch((err) => {
+      MessagePlugin.error("获取缓存失败: " + err)
     })
   }
 }
@@ -337,11 +343,11 @@ function replaceInterfaceAttr(arr, Key, Value) {
 }
 
 function runInterface(interfaceInfo) {
-  MessagePlugin.info("运行接口: "+interfaceInfo.Name)
+  MessagePlugin.info("运行接口: " + interfaceInfo.Name)
   TestInterface(interfacesStore.platform, interfaceInfo).then(() => {
-    MessagePlugin.success("接口运行完毕: "+interfaceInfo.Name)
+    MessagePlugin.success("接口运行完毕: " + interfaceInfo.Name)
   }).catch((err) => {
-    MessagePlugin.error("运行失败："+err)
+    MessagePlugin.error("运行失败：" + err)
   })
 }
 

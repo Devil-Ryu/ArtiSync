@@ -13,7 +13,9 @@
               <t-button variant="outline" @click="exportPlatform(platform)">导出</t-button>
               <t-button variant="outline" @click="editPlatform(platform)">编辑</t-button>
               <t-button variant="outline" @click="updatePlatform(platform)">{{ statusMap[!platform.Disabled].label }}</t-button>
-              <t-button theme="danger" variant="base" @click="deletePlatform(index, platform)">删除</t-button>
+              <t-popconfirm theme="danger" content="是否确认删除平台" @confirm="deletePlatform(index, platform)">
+                <t-button theme="danger" variant="base">删除</t-button>
+              </t-popconfirm>
             </t-space>
           </template>
         </t-card>

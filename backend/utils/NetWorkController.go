@@ -26,6 +26,7 @@ type NetWorkController struct {
 	ProxURL            *url.URL
 	CurRequestMessage  string
 	CurResponseMessage string
+	SleepTime          int
 	// URL          *url.URL
 	// Request      *http.Request
 	Interface        models.Interface

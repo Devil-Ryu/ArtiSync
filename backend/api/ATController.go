@@ -19,8 +19,10 @@ import (
 type ATController struct {
 	ArticleList       []Article                // 文章列表
 	ProxyURL          *url.URL                 // 网络代理
+	RequestSleep      int                      // 请求一次休眠时间
 	DBController      *DBController            // 数据库控制器
-	TestNetController *utils.NetWorkController // 网络控制器，单个链接用
+	TestNetController *utils.NetWorkController // 网络控制器(测试用)
+	CurNetController  *utils.NetWorkController // 网络控制器(运行用)
 	InterfaceRecordID string                   // 记录ID(每运行一次RUN函数生成一个)
 	artlog.Logger
 }
@@ -67,11 +69,13 @@ func (a *ATController) SetDBController(dbController *DBController) {
 // InitConfig 初始化配置
 func (a *ATController) InitConfig() (err error) {
 
+	// 获取配置文件路径
 	configFilePath, err := a.DBController.GetConfigFilePath()
 	if err != nil {
 		a.Print(artlog.ERROR, "文章控制器", fmt.Errorf("获取配置文件失败: %w", err).Error())
 	}
 
+	// 加载config
 	config, err := a.DBController.LoadJSONFile(configFilePath)
 	if err != nil {
 		a.Print(artlog.ERROR, "文章控制器", fmt.Errorf("初始化配置错误: %w", err).Error())
@@ -94,6 +98,18 @@ func (a *ATController) InitConfig() (err error) {
 
 	}
 	a.SetProxyURL(proxyURL)
+
+	// 设置NetController的requestSleep
+	fmt.Printf("requestSleep = %T\n", config["requestSleep"])
+	requestSleep, ok := config["requestSleep"].(float64)
+	if !ok {
+		err = fmt.Errorf("requestSleep解析错误: %s", config["requestSleep"])
+		a.Print(artlog.ERROR, "数据控制器", err.Error())
+
+	}
+
+	a.RequestSleep = int(requestSleep)
+
 	return err
 
 }
@@ -430,7 +446,8 @@ func (a *ATController) SetProxyURL(proxURL string) {
 
 // TestInterface 测试接口
 func (a *ATController) TestInterface(platform models.Platform, interfaceInfo models.Interface) error {
-	a.TestNetController.SetProxyURL(a.ProxyURL) // 设置代理
+	a.TestNetController.SetProxyURL(a.ProxyURL)    // 设置代理
+	a.TestNetController.SleepTime = a.RequestSleep // 设置休眠时间
 	// 第一次运行生成（放到加载文章中）
 	if len(a.ArticleList) <= 0 {
 		return fmt.Errorf("未发现文章")
@@ -542,13 +559,14 @@ func (a *ATController) Run() utils.ResponseJSON {
 				continue                                                   // 如果报错则开始下一个平台
 			}
 			// 每一个平台单独一个网络控制器
-			netController := utils.NewNetWorkController()
-			netController.SetProxyURL(a.ProxyURL) // 设置代理
+			a.CurNetController = utils.NewNetWorkController()
+			a.CurNetController.SetProxyURL(a.ProxyURL)    // 设置代理
+			a.CurNetController.SleepTime = a.RequestSleep // 设置休眠时间
 			// 将文章转化为字符串放入网络请求池中
-			netController.ResponsePool["ART-TITLE"] = a.ArticleList[articleIndex].Title
-			netController.ResponsePoolType["ART-TITLE"] = "TEXT"
-			netController.ResponsePool["ART-CONTENT-STR"] = strings.Join(a.ArticleList[articleIndex].MarkdownTool.MarkdownLines, "\n")
-			netController.ResponsePoolType["ART-CONTENT-STR"] = "TEXT"
+			a.CurNetController.ResponsePool["ART-TITLE"] = a.ArticleList[articleIndex].Title
+			a.CurNetController.ResponsePoolType["ART-TITLE"] = "TEXT"
+			a.CurNetController.ResponsePool["ART-CONTENT-STR"] = strings.Join(a.ArticleList[articleIndex].MarkdownTool.MarkdownLines, "\n")
+			a.CurNetController.ResponsePoolType["ART-CONTENT-STR"] = "TEXT"
 
 			a.Print(artlog.DEBUG, "网络控制器", fmt.Sprintf(`{"platformName":"%s", "articleName":"%s", "content":%s}`, platform.Name, aritcle.Title, strings.Join(a.ArticleList[articleIndex].MarkdownTool.MarkdownLines, "\n")))
 			// 遍历接口
@@ -561,14 +579,14 @@ func (a *ATController) Run() utils.ResponseJSON {
 				// 判断接口是否为组（组执行： 判断接口是否为图片->循环执行children， 否->执行children）
 				if interfaceInfo.IsGroup {
 					// 如果为组则执行子接口列表
-					interfaceErr = a.runInterfaces(netController, platform, articleIndex, interfaceInfo.Children, interfaceInfo.Type)
+					interfaceErr = a.runInterfaces(a.CurNetController, platform, articleIndex, interfaceInfo.Children, interfaceInfo.Type)
 					if interfaceErr != nil {
 						errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, err).Error()
 						a.Print(artlog.ERROR, "文章控制器", errMsg)
 					}
 				} else {
 					// 如果不为组则执行接口（接口执行： 判断接口是否为图片->循环执行接口， 否->执行接口）
-					interfaceErr = a.runInterfaces(netController, platform, articleIndex, []models.Interface{interfaceInfo}, interfaceInfo.Type)
+					interfaceErr = a.runInterfaces(a.CurNetController, platform, articleIndex, []models.Interface{interfaceInfo}, interfaceInfo.Type)
 					if interfaceErr != nil {
 						errMsg := fmt.Errorf("接口运行错误[%s]: %w", interfaceInfo.Name, err).Error()
 						a.Print(artlog.ERROR, "文章控制器", errMsg)

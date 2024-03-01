@@ -48,10 +48,16 @@
                 </t-row>
                 <t-row :gutter="10">
                     <t-col flex="auto">
-                        <t-form-item label="代理" name="dbPath">
+                        <t-form-item label="代理" name="proxy">
                             <t-input v-model="configStore.systemConfig.proxyURL" placeholder="http://127.0.0.1:8080">
-
                             </t-input>
+                        </t-form-item>
+                    </t-col>
+                </t-row>
+                <t-row :gutter="10">
+                    <t-col flex="auto">
+                        <t-form-item label="接口请求速度限制" name="requestSleep">
+                            <t-input-number style="width: 100%;" v-model="configStore.systemConfig.requestSleep" align="right" label="每运行一个接口睡眠" suffix="秒" theme="column" default-value="1" placeholder="1"  />
                         </t-form-item>
                     </t-col>
                 </t-row>

@@ -68,7 +68,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { DeleteInterfaceRecord, QueryInterfaceRecords, ClearInterfaceRecord } from "@/wailsjs/go/api/DBController";
+import { DeleteInterfaceRecord, QueryInterfaceRecords, ClearInterfaceRecord, GetInterfaceRecords } from "@/wailsjs/go/api/DBController";
 import { statusNameListMap } from "@/src/store/article"
 import { useInterfaceRecordsStore } from "@/src/store/platform";
 import RecordDetailDialog from "@/src/views/Components/RecordDetailDialog/RecordDetailDialog.vue";
@@ -104,7 +104,7 @@ const columns = ref([
   { colKey: 'Tag', title: '标签', width: 70, align: 'center', ellipsis: true, },
   { colKey: 'Name', title: '接口名称', width: 100, ellipsis: true, },
   { colKey: 'RequestURL', title: '接口URL', ellipsis: true, },
-  { colKey: 'ResponseMessage', title: '响应内容', ellipsis: true, },
+  // { colKey: 'ResponseMessage', title: '响应内容', ellipsis: true, },
   { colKey: 'Status', title: '运行状态', width: 100, align: 'center', ellipsis: true, },
   { colKey: 'operation', title: '操作', width: 80, fixed: "right", align: 'center' },
 ])
@@ -129,8 +129,14 @@ function deletRecord(row) {
 }
 
 function openRecordDetail(row) {
-  interfaceRecordsStore.curRecord = row
-  interfaceRecordsStore.detailDialogVisible = true
+  // 根据ID查询单个记录
+  GetInterfaceRecords({"id": row.ID}).then((result)=>{
+    interfaceRecordsStore.curRecord = result[0]
+    interfaceRecordsStore.detailDialogVisible = true
+  }).catch(err=>{
+    MessagePlugin.err("获取记录失败: "+err)
+  })
+  
 }
 
 function reset() {
