@@ -59,43 +59,7 @@
         <template #title>
           <div style="margin-left: 14px; ">接口运行状态</div>
         </template>
-        <t-form>
-          <t-row>
-            <t-col :span="10">
-              <t-row :gutter="[10, 24]">
-                <t-col :span="4">
-                  <t-form-item label="平台名称" name="platforName">
-                    <t-select multiple :min-collapsed-num="1" :options="platformNameOptions"
-                      v-model="filterValue.platforms" />
-                  </t-form-item>
-                </t-col>
-                <t-col :span="4">
-                  <t-form-item label="接口名称" name="interface">
-                    <t-input type="search" placeholder="请输入接口名称" v-model="filterValue.interfaceName" />
-                  </t-form-item>
-                </t-col>
-                <t-col :span="4">
-                  <t-form-item label="运行状态" name="status">
-                    <t-select multiple :min-collapsed-num="1" :options="statusOptions" v-model="filterValue.statusList" />
-                  </t-form-item>
-                </t-col>
-              </t-row>
-            </t-col>
-            <t-col class="operation-container" style="margin-left: 20px;">
-              <t-button type="reset" variant="base" theme="default" @click="reset"> 重置 </t-button>
-            </t-col>
-          </t-row>
-        </t-form>
-        <t-table :columns="columns" :data="data" row-key="PlatformName">
-          <template #Status="{ row }">
-            <t-tag variant="light-outline" :theme="statusNameListMap[row.Status].theme">
-              {{ statusNameListMap[row.Status].label }}
-            </t-tag>
-          </template>
-          <template #operation="{ row }">
-            <t-link theme="primary" @click="openRecordDetail(row)">详情</t-link>
-          </template>
-        </t-table>
+        <InterfaceRecordPage />
       </t-card>
     </div>
     <RecordDetailDialog />
@@ -106,104 +70,12 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useArticleStore, statusNameListMap } from "@/src/store/article"
 import { useInterfaceRecordsStore } from "@/src/store/platform";
-import { EventsOn } from "@/wailsjs/runtime/runtime";
 import { GetInterfaceRecords, QueryInterfaceRecords } from "@/wailsjs/go/api/DBController";
 import RecordDetailDialog from "../Components/RecordDetailDialog/RecordDetailDialog.vue";
+import InterfaceRecordPage from "../InterfaceRecords/InterfaceRecordPage.vue";
 
 const articleStore = useArticleStore()
-const interfaceRecordsStore = useInterfaceRecordsStore()
 const colSpan = ref(2)
-const filterValue = ref({});
-
-// 接口运行状态部分参数
-// 平台名称选项
-const platformNameOptions = computed(() => {
-  var tmp = []
-  if (interfaceRecordsStore.records === undefined) {
-    return tmp
-  }
-  interfaceRecordsStore.records.forEach(item => {
-    tmp.push(item.PlatformName)
-  })
-  var s = new Set(tmp)
-  var result = []
-  s.forEach(key => {
-    result.push({ value: key, label: key })
-  })
-  return result
-})
-// 运行状态选项
-const statusOptions = [
-  { value: "运行成功", label: "运行成功" },
-  { value: "运行失败", label: "运行失败" },
-  { value: "运行中", label: "运行中" },
-]
-const columns = ref([
-  { colKey: 'PlatformName', title: '平台名称', width: 150, },
-  { colKey: 'Name', title: '接口名称', width: 150, ellipsis: true, },
-  { colKey: 'RequestURL', title: '接口URL', width: 240, ellipsis: true, },
-  // { colKey: 'ResponseMessage', title: '响应内容', width: 240, ellipsis: true, },
-  { colKey: 'Status', title: '运行状态', width: 120, ellipsis: true, },
-  { colKey: 'operation', title: '操作', width: 80, fixed: 'right', align: 'center' },
-])
-
-
-// const data = ref([...interfaceRecordsStore.records])
-const data = computed(() => {
-
-  console.log("[data]interfaceRecordsStore.records", interfaceRecordsStore.records)
-  if (interfaceRecordsStore.records === undefined) {
-    return []
-  }
-  const newData = interfaceRecordsStore.records.filter((item) => {
-    let result = true
-    if (filterValue.value.platforms !== undefined && filterValue.value.platforms.length !== 0) {
-      result = filterValue.value.platforms.indexOf(item.PlatformName) !== -1
-    }
-    if (filterValue.value.statusList !== undefined && filterValue.value.statusList.length !== 0) {
-      result = filterValue.value.statusList.indexOf(item.Status) !== -1
-    }
-    if (filterValue.value.interfaceName !== undefined && filterValue.value.interfaceName !== "") {
-      result = item.Name.indexOf(filterValue.value.interfaceName) !== -1
-    }
-    return result
-  })
-  return newData
-
-})
-
-// watch(
-//   () => interfaceRecordsStore.records,
-//   () => {
-//     data.value = [...interfaceRecordsStore.records]
-//   }
-// )
-
-// 函数区
-EventsOn("UpdateInterfaceRecord", (recordID) => {
-  if (recordID !== "TEST") {
-    QueryInterfaceRecords({ "record_id": recordID }).then(response => {
-    interfaceRecordsStore.records = response.result
-    data.value = response.result
-  })
-  }
-
-})
-
-function openRecordDetail(row) {
-  // 根据ID查询单个记录
-  GetInterfaceRecords({"id": row.ID}).then((result)=>{
-    interfaceRecordsStore.curRecord = result[0]
-    interfaceRecordsStore.detailDialogVisible = true
-  }).catch(err=>{
-    MessagePlugin.err("获取记录失败: "+err)
-  })
-  
-}
-
-function reset() {
-  filterValue.value = {}
-}
 
 </script>
 

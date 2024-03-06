@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/tidwall/gjson"
 )
@@ -389,7 +390,7 @@ func (n *NetWorkController) storeToPool(key string, value []byte, valueType stri
 
 // Run 网络请求模块运行方法
 func (n *NetWorkController) Run() ResponseJSON {
-	// time.Sleep(1 * time.Second) // 睡眠1s
+	time.Sleep(time.Duration(n.SleepTime) * time.Second) // 睡眠
 	transport := &http.Transport{Proxy: http.ProxyURL(n.ProxURL)}
 	client := http.Client{Transport: transport}
 

@@ -191,6 +191,9 @@ function onTabChange(tabValue) {
       MessagePlugin.error("获取缓存失败: " + err)
     })
   }
+  if (tabValue === "records") {
+    interfaceRecordStore.setFilters({date_time: [], record_id: "TEST", platform_name: interfacesStore.platform.Name})
+  }
 }
 
 // 接口排序

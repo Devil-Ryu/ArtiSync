@@ -15,13 +15,11 @@
             <t-button  
               variant="text" 
               theme="primary" 
-              size="small" 
               @click="loadArticleDetail(row)">
               详情
             </t-button>
           </template>
       </t-table>
-    
     <ArticleDetail />
   </div>
   
@@ -38,20 +36,21 @@ import { useConfigStore } from "@/src/store/config";
 import { useInterfaceRecordsStore } from "@/src/store/platform";
 const configStore = useConfigStore()
 const articleStore = useArticleStore()
+const interfaceRecordsStore = useInterfaceRecordsStore()
 
 const columns = ref([
-  {colKey: 'Index', title: '序号', align: 'center'},
+  {colKey: 'Index', title: '序号', align: 'center', width: 80,},
   {colKey: 'Title', title: '文章名称', ellipsis: true},
-  {colKey: 'Progress', title: '上传进度',
+  {colKey: 'Progress', title: '上传进度', width: 240,
     cell: (h, { row}) => {
     return (<t-progress theme="line" percentage={row.Progress} />)
   }},
-  {colKey: 'Status', title: '状态', align: 'center',
+  {colKey: 'Status', title: '状态', align: 'center', width: 120,
     cell: (h, { row }) => {
     return (<t-tag theme={statusNameListMap[row.Status].theme} variant="light">{statusNameListMap[row.Status].label}</t-tag>)
     },
   },
-  {colKey: 'operation', title: '操作', align: 'center'},
+  {colKey: 'operation', title: '操作', align: 'center', width: 80,},
 ])
 
 
@@ -103,15 +102,17 @@ function loadData() {
 // 加载文章详情
 function loadArticleDetail(article) {
   // 获取文章详情
-
-  console.log("article", article)
+  console.log("加载文章：", article)
   articleStore.articleDetailIndex = article.Index - 1
-  articleStore.articleDetailBasicInfo = article.BasicInfo
-  articleStore.articleDetailBasicInfo.Status = article.Status
-  articleStore.articleDetailPlatformsInfo = article.PlatformsInfo
-
-  console.log("articleDetailBasicInfo", articleStore.articleDetailBasicInfo)
-
+  interfaceRecordsStore.curFilter = "articleDetailPageFilter"
+  // interfaceRecordsStore.filters[interfaceRecordsStore.curFilter] = {date_time: [], article_name: article.Name, record_id: articleStore.articleDetailBasicInfo.InterfaceRecordID}
+  // 设置接口记录页的过滤器
+  interfaceRecordsStore.setFilters({
+    date_time: [], 
+    article_name: article.Title,
+    record_id: articleStore.articleDetailBasicInfo.InterfaceRecordID,
+  })
+  
   articleStore.articleDetailVisible = true
 }
 
@@ -122,11 +123,6 @@ EventsOn("UpdateArticleDetail", async (articleIndex, BasicInfo, PlatformsInfo, S
   articleStore.articleList[articleIndex].PlatformsInfo = PlatformsInfo  // 更新平台进度信息
   articleStore.articleList[articleIndex].Status = Status  // 更新文章状态
   articleStore.articleList[articleIndex].Progress = parseFloat(Progress).toFixed(2)  // 更新文章进度
-
-  // 同步更新文章详情中的状态
-  articleStore.articleDetailBasicInfo = BasicInfo
-  articleStore.articleDetailBasicInfo.Status  = Status
-  articleStore.articleDetailPlatformsInfo = PlatformsInfo
 })
 
 

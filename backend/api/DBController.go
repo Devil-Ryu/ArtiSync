@@ -105,6 +105,11 @@ func (d *DBController) QueryInterfaceRecords(query map[string]interface{}, pageN
 				tmpList := []interface{}{tmp[0], tmp[1]}
 				appendQuery(&queryList, &queryParams, "date_time between ? and ?", tmpList...)
 			}
+		case "article_name":
+			tmp, ok := value.(string)
+			if ok && len(tmp) != 0 {
+				appendQuery(&queryList, &queryParams, "article_name = ?", tmp)
+			}
 		case "platform_name":
 			tmp, ok := value.(string)
 			if ok && len(tmp) != 0 {
@@ -132,9 +137,7 @@ func (d *DBController) QueryInterfaceRecords(query map[string]interface{}, pageN
 	var result []models.InterfaceRecord
 
 	querySQL := strings.Join(queryList, " and ")
-	fmt.Println("query: ", query)
-	fmt.Println("querySQL: ", querySQL)
-	fmt.Println("queryParams: ", queryParams)
+	fmt.Printf("{'querySQL': %s, 'query': %s, 'queryParams': %s}", querySQL, query, queryParams)
 	totalRows := d.DB.Where(querySQL, queryParams...).Find(&result).RowsAffected // 获取总行数
 	d.DB.Where(querySQL, queryParams...).Limit(pageSize).Offset((pageNum-1)*pageSize).Omit("RequestMessage", "ResponseMessage").Order("date_time desc, id desc").Find(&result)
 

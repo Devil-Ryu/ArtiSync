@@ -69,7 +69,7 @@ const statusMap = {
 // 加载平台
 function loadPlatforms() {
   GetPlatforms().then(result => {
-    console.log("GetPlatforms->", result)
+    console.log("获取平台信息[loadPlatforms]->", result)
     platformStore.platforms = result
   })
 }
@@ -97,7 +97,7 @@ function importPlatform() {
 // 导出平台
 function exportPlatform(platform) {
   SaveFile("", platform.Name+".json", "导出平台至").then((response)=>{
-    console.log("savePath:",savePath)
+    console.log("保存地址[exportPlatform]:",savePath)
     if (response.StatusCode == 200 && response.Data !== "") {
       var savePath = response.Data
       ExportPlatform(savePath, platform).then(result => {
@@ -110,7 +110,7 @@ function exportPlatform(platform) {
 // 编辑平台
 function editPlatform(platform) {
   GetPlatform(platform).then(result => {
-    console.log("editPlatform->", result)
+    console.log("编辑平台信息[editPlatform]:", result)
     interfacesStore.title = platform.Name
     interfacesStore.platform = result
     interfacesStore.visible = true

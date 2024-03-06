@@ -22,7 +22,7 @@
     </t-header> -->
     <t-layout class="content">
       <t-aside class="content-left">
-        <t-menu theme="light" v-model="asideIndex" width="200px">
+        <t-menu theme="light" v-model="asideIndex" width="200px" @change="onChange">
           <t-menu-item value="article" to="/article">
             <template #icon>
               <BookOpenIcon />
@@ -74,8 +74,10 @@ import { MessagePlugin } from "tdesign-vue-next";
 import { useLogStore } from "@/src/store/log";
 import { EventsOn } from "@/wailsjs/runtime/runtime";
 import { useConfigStore } from "@/src/store/config"
+import { useInterfaceRecordsStore } from "@/src/store/platform";
 
 const configStore = useConfigStore()
+const interfaceRecordsStore = useInterfaceRecordsStore()
 const asideIndex = ref('article')
 const logger = useLogStore()
 
@@ -87,13 +89,21 @@ onMounted(() => {
   loadSystemConfig()
 })
 
+function onChange(menuValue) {
+  console.log("当前页面[menu]: ", menuValue)
+  console.log("当前页面[menu]: ", menuValue==="records")
+  if (menuValue === "records") {
+    interfaceRecordsStore.setFilters({date_time: []})
+  }
+}
+
 // 加载系统设置
 function loadSystemConfig() {
   GetConfigFilePath().then((configFilePath) => {
     configStore.sysPath = configFilePath
     LoadJSONFile(configFilePath).then((result) => {
       configStore.systemConfig = result
-      console.log("loadSystemConfig: ", result)
+      console.log("加载系统配置: ", result)
     }).catch((err) => {
       MessagePlugin.error(err)
     })
@@ -102,8 +112,6 @@ function loadSystemConfig() {
   })
 
 }
-
-
 </script>
 
 

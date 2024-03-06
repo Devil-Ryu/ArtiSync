@@ -97,6 +97,7 @@ export const useInterfacesStore = defineStore('interface', ()=>{
 // 接口记录参数
 export const useInterfaceRecordsStore = defineStore('interfaceRecords', () => {
   const records = ref([])  // 记录列表
+  const filters = ref({date_time: []})
   const detailDialogVisible = ref(false)  // 是否显示
   const curRecord = ref({
     ArticleName: "初次渲染模板",
@@ -113,11 +114,22 @@ export const useInterfaceRecordsStore = defineStore('interfaceRecords', () => {
     Tag: "1",
   })
   const testCaches = ref([])  // 测试接口的缓存
+
+  function setFilters(filters) {
+    this.filters = filters
+    return filters
+  }
+
+
+
   return {
+      filters,
       records,
       detailDialogVisible,
       curRecord,
       testCaches,
+      setFilters,
+      
   }
 })
 

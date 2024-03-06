@@ -8,18 +8,33 @@ export const useArticleStore = defineStore('article', () => {
     const articleDetailIndex = ref(0)
 
     // 文章详情基本信息
-    const articleDetailBasicInfo = ref({
-        Title: "未知",
-        Type: "未知",
-        ImageNum: "未知",
-        InterfaceNum: "未知",
-        InterfaceRecordID: "待运行后生成",
-        Status: "待发布",
-        Platforms: []
+    const articleDetailBasicInfo = computed(()=>{
+        if (articleList.value[articleDetailIndex.value] !==  undefined &&  articleList.value[articleDetailIndex.value].BasicInfo !== undefined) {
+            // console.log("articleList.value", articleList.value)
+            articleList.value[articleDetailIndex.value].BasicInfo.Status = articleList.value[articleDetailIndex.value].Status
+            return articleList.value[articleDetailIndex.value].BasicInfo
+        } else {
+            return {
+                Title: "未知",
+                Type: "未知",
+                ImageNum: "未知",
+                InterfaceNum: "未知",
+                InterfaceRecordID: "待运行后生成",
+                Status: "待发布",
+                Platforms: []
+            }
+        }
+
     })
 
     // 文章详平台信息（字典，后端同步到前端）
-    const articleDetailPlatformsInfo = ref({})
+    const articleDetailPlatformsInfo =  computed(()=>{
+        if (articleList.value[articleDetailIndex.value] !==  undefined &&  articleList.value[articleDetailIndex.value].PlatformsInfo !== undefined) {
+            return articleList.value[articleDetailIndex.value].PlatformsInfo
+        } else {
+            return {}
+        }
+    })
     // 文章详平台信息（列表）
     const articleDetailPlatformsList = computed(() => {
         var result = []
