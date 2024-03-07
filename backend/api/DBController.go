@@ -137,7 +137,7 @@ func (d *DBController) QueryInterfaceRecords(query map[string]interface{}, pageN
 	var result []models.InterfaceRecord
 
 	querySQL := strings.Join(queryList, " and ")
-	fmt.Printf("{'querySQL': %s, 'query': %s, 'queryParams': %s}", querySQL, query, queryParams)
+	fmt.Printf("{'querySQL': %s, 'query': %s, 'queryParams': %s}\n", querySQL, query, queryParams)
 	totalRows := d.DB.Where(querySQL, queryParams...).Find(&result).RowsAffected // 获取总行数
 	d.DB.Where(querySQL, queryParams...).Limit(pageSize).Offset((pageNum-1)*pageSize).Omit("RequestMessage", "ResponseMessage").Order("date_time desc, id desc").Find(&result)
 
