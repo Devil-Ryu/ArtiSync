@@ -1,0 +1,643 @@
+{
+	"Name": "简书-模板",
+	"Disabled": true,
+	"Interfaces": [
+		{
+			"Prior": 1,
+			"Serial": "Ms0W8Yku",
+			"Name": "创建文章",
+			"IsGroup": false,
+			"ParentSerial": null,
+			"Children": [],
+			"Type": "normal",
+			"RequestURL": "https://www.jianshu.com/author/notes",
+			"RequestURLPath": [],
+			"RequestMethod": "POST",
+			"RequestQuery": [],
+			"RequestHeaders": [
+				{
+					"Dynamic": false,
+					"Key": "Host",
+					"Value": "www.jianshu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "User-Agent",
+					"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept",
+					"Value": "application/json"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Language",
+					"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Encoding",
+					"Value": "deflate, br"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Content-Type",
+					"Value": "application/json"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Origin",
+					"Value": "https://www.jianshu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Connection",
+					"Value": "keep-alive"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Referer",
+					"Value": "https://www.jianshu.com/writer"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Dest",
+					"Value": "empty"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Mode",
+					"Value": "cors"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Site",
+					"Value": "same-origin"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Pragma",
+					"Value": "no-cache"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cache-Control",
+					"Value": "no-cache"
+				},
+				{
+					"Dynamic": false,
+					"Key": "TE",
+					"Value": "trailers"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cookie",
+					"Value": "此处粘贴自己的cookie"
+				}
+			],
+			"RequestBody": [
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "notebook_id",
+					"Value": "54660523"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "title",
+					"Value": "ART-TITLE"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "at_bottom",
+					"Value": "false"
+				}
+			],
+			"RequestBodyType": "JSON",
+			"ResponseType": "JSON",
+			"ResponseTemple": "{\"id\":111,\"title\":\"2024-01-29\",\"slug\":\"none\",\"shared\":false,\"notebook_id\":111111,\"seq_in_nb\":-1,\"note_type\":1,\"autosave_control\":0,\"content_updated_at\":1706521389,\"last_compiled_at\":0}",
+			"ResponseValidate": false,
+			"ResponseMapType": "JSON",
+			"ResponseMapRule": "Ms0W8Yku.id"
+		},
+		{
+			"Prior": 2,
+			"Serial": "ZmQrLAwU",
+			"Name": "上传图片组",
+			"IsGroup": true,
+			"ParentSerial": null,
+			"Children": [
+				{
+					"Prior": 1,
+					"Serial": "kId8mAzx",
+					"Name": "预置接口",
+					"IsGroup": false,
+					"ParentSerial": "ZmQrLAwU",
+					"Children": null,
+					"Type": "normal",
+					"RequestURL": "https://www.jianshu.com/upload_images/token.json",
+					"RequestURLPath": [],
+					"RequestMethod": "GET",
+					"RequestQuery": [
+						{
+							"Dynamic": true,
+							"Key": "filename",
+							"Value": "IMG-TITLE"
+						}
+					],
+					"RequestHeaders": [
+						{
+							"Dynamic": false,
+							"Key": "Host",
+							"Value": "www.jianshu.com"
+						},
+						{
+							"Dynamic": false,
+							"Key": "User-Agent",
+							"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept",
+							"Value": "application/json"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Language",
+							"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Encoding",
+							"Value": "deflate"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Content-Type",
+							"Value": "application/json; charset=UTF-8"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Connection",
+							"Value": "keep-alive"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Referer",
+							"Value": "https://www.jianshu.com/writer"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Cookie",
+							"Value": "此处粘贴自己的cookie"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Dest",
+							"Value": "empty"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Mode",
+							"Value": "cors"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Site",
+							"Value": "same-origin"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Te",
+							"Value": "trailers"
+						}
+					],
+					"RequestBody": [],
+					"RequestBodyType": "NONE",
+					"ResponseType": "JSON",
+					"ResponseTemple": "{\"token\":\"none\",\"key\":\"upload_images/29552936-dc3e6c0352876502.png\"}",
+					"ResponseValidate": false,
+					"ResponseMapType": "NONE",
+					"ResponseMapRule": ""
+				},
+				{
+					"Prior": 1,
+					"Serial": "kdbMRUAt",
+					"Name": "上传图片接口",
+					"IsGroup": false,
+					"ParentSerial": "ZmQrLAwU",
+					"Children": null,
+					"Type": "images",
+					"RequestURL": "https://upload.qiniup.com",
+					"RequestURLPath": [],
+					"RequestMethod": "POST",
+					"RequestQuery": [],
+					"RequestHeaders": [
+						{
+							"Dynamic": false,
+							"Key": "Host",
+							"Value": "upload.qiniup.com"
+						},
+						{
+							"Dynamic": false,
+							"Key": "User-Agent",
+							"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept",
+							"Value": "application/json"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Language",
+							"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Encoding",
+							"Value": "deflate"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Origin",
+							"Value": "https://www.jianshu.com"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Referer",
+							"Value": "https://www.jianshu.com/"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Dest",
+							"Value": "empty"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Mode",
+							"Value": "cors"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Site",
+							"Value": "cross-site"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Te",
+							"Value": "trailers"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Cookie",
+							"Value": "此处粘贴自己的cookie"
+						}
+					],
+					"RequestBody": [
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "token",
+							"Value": "kId8mAzx.token"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "key",
+							"Value": "kId8mAzx.key"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": false,
+							"Key": "x:protocol",
+							"Value": "https"
+						},
+						{
+							"IsFile": true,
+							"FileName": "IMG-TITLE",
+							"Dynamic": true,
+							"Key": "file",
+							"Value": "IMG-CONTENT-STR"
+						}
+					],
+					"RequestBodyType": "FORMDATA",
+					"ResponseType": "JSON",
+					"ResponseTemple": "{\"format\":\"png\",\"height\":116,\"url\":\"image-url\",\"width\":227}",
+					"ResponseValidate": true,
+					"ResponseMapType": "JSON",
+					"ResponseMapRule": "kdbMRUAt.url"
+				}
+			],
+			"Type": "images",
+			"RequestURL": "",
+			"RequestURLPath": [],
+			"RequestMethod": "",
+			"RequestQuery": [],
+			"RequestHeaders": [],
+			"RequestBody": [],
+			"RequestBodyType": "NONE",
+			"ResponseType": "NONE",
+			"ResponseTemple": "",
+			"ResponseValidate": false,
+			"ResponseMapType": "NONE",
+			"ResponseMapRule": ""
+		},
+		{
+			"Prior": 3,
+			"Serial": "Ee7suLdO",
+			"Name": "转化文章",
+			"IsGroup": false,
+			"ParentSerial": null,
+			"Children": [],
+			"Type": "normal",
+			"RequestURL": "https://pandoc.org/cgi-bin/pandoc-server.cgi",
+			"RequestURLPath": [],
+			"RequestMethod": "POST",
+			"RequestQuery": [],
+			"RequestHeaders": [
+				{
+					"Dynamic": false,
+					"Key": "Host",
+					"Value": "pandoc.org"
+				},
+				{
+					"Dynamic": false,
+					"Key": "User-Agent",
+					"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept",
+					"Value": "application/json"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Language",
+					"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Encoding",
+					"Value": "gzip, deflate"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Referer",
+					"Value": "https://pandoc.org/try/"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Content-Type",
+					"Value": "application/json"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Content-Length",
+					"Value": "261"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Origin",
+					"Value": "https://pandoc.org"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Dest",
+					"Value": "empty"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Mode",
+					"Value": "cors"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Site",
+					"Value": "same-origin"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Pragma",
+					"Value": "no-cache"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cache-Control",
+					"Value": "no-cache"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Te",
+					"Value": "trailers"
+				}
+			],
+			"RequestBody": [
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "text",
+					"Value": "ART-CONTENT-STR"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "to",
+					"Value": "html5"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "from",
+					"Value": "markdown"
+				}
+			],
+			"RequestBodyType": "JSON",
+			"ResponseType": "JSON",
+			"ResponseTemple": "{\"output\":\"\u003ch1 id=\\\"section\\\"\u003e123\u003c/h1\u003e\\n\u003ch2 id=\\\"section-1\\\"\u003e126456\u003c/h2\u003e\",\"base64\":false,\"messages\":[]}",
+			"ResponseValidate": true,
+			"ResponseMapType": "JSON",
+			"ResponseMapRule": "Ee7suLdO.output"
+		},
+		{
+			"Prior": 4,
+			"Serial": "gzOUgrRk",
+			"Name": "上传文章",
+			"IsGroup": false,
+			"ParentSerial": null,
+			"Children": [],
+			"Type": "article",
+			"RequestURL": "Https://www.jianshu.com/author/notes",
+			"RequestURLPath": [
+				{
+					"Dynamic": true,
+					"Value": "Ms0W8Yku.id"
+				}
+			],
+			"RequestMethod": "PUT",
+			"RequestQuery": [],
+			"RequestHeaders": [
+				{
+					"Dynamic": false,
+					"Key": "Host",
+					"Value": "www.jianshu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "User-Agent",
+					"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept",
+					"Value": "application/json"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Language",
+					"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Encoding",
+					"Value": "gzip, deflate, br"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Content-Type",
+					"Value": "application/json; charset=UTF-8"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Content-Length",
+					"Value": "65"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Origin",
+					"Value": "https://www.jianshu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Connection",
+					"Value": "keep-alive"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Referer",
+					"Value": "https://www.jianshu.com/writer"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cookie",
+					"Value": "此处粘贴自己的cookie"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Dest",
+					"Value": "empty"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Mode",
+					"Value": "cors"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Site",
+					"Value": "same-origin"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Pragma",
+					"Value": "no-cache"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cache-Control",
+					"Value": "no-cache"
+				},
+				{
+					"Dynamic": false,
+					"Key": "TE",
+					"Value": "trailers"
+				}
+			],
+			"RequestBody": [
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "id",
+					"Value": "Ms0W8Yku.id"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "title",
+					"Value": "ART-TITLE"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "content",
+					"Value": "Ee7suLdO.output"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "autosave_control",
+					"Value": "1"
+				}
+			],
+			"RequestBodyType": "JSON",
+			"ResponseType": "JSON",
+			"ResponseTemple": "{\"id\":1111111,\"content_updated_at\":1111111,\"content_size_status\":\"fine\",\"last_compiled_at\":0}",
+			"ResponseValidate": false,
+			"ResponseMapType": "NONE",
+			"ResponseMapRule": ""
+		}
+	],
+	"ReplaceMaps": [
+		{
+			"Disabled": false,
+			"Type": "Headers",
+			"Key": "Cookie",
+			"Value": "此处粘贴自己的cookie",
+			"Interfaces": [
+				"Ms0W8Yku",
+				"kId8mAzx",
+				"kdbMRUAt",
+				"gzOUgrRk"
+			]
+		},
+		{
+			"Disabled": false,
+			"Type": "Headers",
+			"Key": "User-Agent",
+			"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0",
+			"Interfaces": [
+				"Ms0W8Yku",
+				"kId8mAzx",
+				"kdbMRUAt",
+				"Ee7suLdO",
+				"gzOUgrRk"
+			]
+		}
+	]
+}

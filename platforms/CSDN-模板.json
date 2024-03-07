@@ -1,5 +1,5 @@
 {
-	"Name": "CSDN",
+	"Name": "CSDN-模板",
 	"Disabled": false,
 	"Interfaces": [
 		{
@@ -141,7 +141,7 @@
 						{
 							"Dynamic": false,
 							"Key": "Cookie",
-							"Value": "UserName=qq_XXXXXXXXXX;UserToken=XXXXXXXXXXXXXXXXXXXXXX"
+							"Value": "UserName=xxxxxx;UserToken=xxxxxx"
 						}
 					],
 					"RequestBody": [],
@@ -159,7 +159,7 @@
 					"IsGroup": false,
 					"ParentSerial": "1cWEy601",
 					"Children": null,
-					"Type": "images",
+					"Type": "normal",
 					"RequestURL": "https://csdn-img-blog.oss-cn-beijing.aliyuncs.com/",
 					"RequestURLPath": [],
 					"RequestMethod": "POST",
@@ -253,7 +253,7 @@
 						{
 							"Dynamic": false,
 							"Key": "Cookie",
-							"Value": "UserName=qq_XXXXXXXXXX;UserToken=XXXXXXXXXXXXXXXXXXXXXX"
+							"Value": "UserName=xxxxxx;UserToken=xxxxxx"
 						}
 					],
 					"RequestBody": [
@@ -298,6 +298,13 @@
 							"Dynamic": true,
 							"Key": "callback",
 							"Value": "nBA59oZh.data.callbackUrl"
+						},
+						{
+							"IsFile": true,
+							"FileName": "IMG-TITLE",
+							"Dynamic": true,
+							"Key": "File",
+							"Value": "IMG-CONTENT-STR"
 						}
 					],
 					"RequestBodyType": "FORMDATA",
@@ -423,7 +430,7 @@
 				{
 					"Dynamic": false,
 					"Key": "Cookie",
-					"Value": "UserName=qq_XXXXXXXXXX;UserToken=XXXXXXXXXXXXXXXXXXXXXX"
+					"Value": "UserName=xxxxxx;UserToken=xxxxxx"
 				}
 			],
 			"RequestBody": [
@@ -461,13 +468,6 @@
 					"Dynamic": false,
 					"Key": "authorized_status",
 					"Value": "false"
-				},
-				{
-					"IsFile": false,
-					"FileName": "",
-					"Dynamic": false,
-					"Key": "content",
-					"Value": ""
 				},
 				{
 					"IsFile": false,
@@ -515,13 +515,6 @@
 					"IsFile": false,
 					"FileName": "",
 					"Dynamic": false,
-					"Key": "markdowncontent",
-					"Value": ""
-				},
-				{
-					"IsFile": false,
-					"FileName": "",
-					"Dynamic": false,
 					"Key": "resource_id",
 					"Value": ""
 				},
@@ -537,21 +530,21 @@
 					"FileName": "",
 					"Dynamic": true,
 					"Key": "markdowncontent",
-					"Value": "0.article"
+					"Value": "ART-CONTENT-STR"
 				},
 				{
 					"IsFile": false,
 					"FileName": "",
 					"Dynamic": true,
 					"Key": "content",
-					"Value": "0.article"
+					"Value": "ART-CONTENT-STR"
 				},
 				{
 					"IsFile": false,
 					"FileName": "",
 					"Dynamic": true,
 					"Key": "title",
-					"Value": "0.title"
+					"Value": "ART-TITLE"
 				}
 			],
 			"RequestBodyType": "JSON",
@@ -560,6 +553,19 @@
 			"ResponseValidate": false,
 			"ResponseMapType": "NONE",
 			"ResponseMapRule": ""
+		}
+	],
+	"ReplaceMaps": [
+		{
+			"Disabled": false,
+			"Type": "Headers",
+			"Key": "Cookie",
+			"Value": "UserName=xxxxxx;UserToken=xxxxxx",
+			"Interfaces": [
+				"nBA59oZh",
+				"FBry9w2t",
+				"19RjLSHS"
+			]
 		}
 	]
 }

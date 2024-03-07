@@ -1,0 +1,754 @@
+{
+	"Name": "知乎(图片未上传)-模板",
+	"Disabled": false,
+	"Interfaces": [
+		{
+			"Prior": 1,
+			"Serial": "WhLeAxlJ",
+			"Name": "创建文章",
+			"IsGroup": false,
+			"ParentSerial": null,
+			"Children": [],
+			"Type": "normal",
+			"RequestURL": "https://zhuanlan.zhihu.com/api/articles/drafts",
+			"RequestURLPath": [],
+			"RequestMethod": "POST",
+			"RequestQuery": [],
+			"RequestHeaders": [
+				{
+					"Dynamic": false,
+					"Key": "Host",
+					"Value": "zhuanlan.zhihu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cookie",
+					"Value": "此处粘贴自己的cookie"
+				},
+				{
+					"Dynamic": false,
+					"Key": "User-Agent",
+					"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept",
+					"Value": "*/*"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Language",
+					"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Encoding",
+					"Value": "deflate"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Referer",
+					"Value": "https://zhuanlan.zhihu.com/write"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Content-Type",
+					"Value": "application/json"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Requested-With",
+					"Value": "fetch"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Xsrftoken",
+					"Value": "8afd189e-ab4e-4a0a-a00b-10949ecdb1f8"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Origin",
+					"Value": "https://zhuanlan.zhihu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Dest",
+					"Value": "empty"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Mode",
+					"Value": "cors"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Site",
+					"Value": "same-origin"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Te",
+					"Value": "trailers"
+				}
+			],
+			"RequestBody": [
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "title",
+					"Value": "ART-TITLE"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "delta_time",
+					"Value": "0"
+				}
+			],
+			"RequestBodyType": "JSON",
+			"ResponseType": "JSON",
+			"ResponseTemple": "{\n  \"image_url\": \"\",\n  \"updated\": 0,\n  \"copyright_permission\": \"need_review\",\n  \"reviewers\": [\n    \n  ],\n  \"topics\": [\n    \n  ],\n  \"excerpt\": \"\",\n  \"article_type\": \"normal\",\n  \"excerpt_title\": \"\",\n  \"summary\": \"\",\n  \"id\": 684177751,\n  \"url\": \"\",\n  \"comment_permission\": \"all\",\n  \"created\": 1709017116,\n  \"content\": \"\",\n  \"has_publishing_draft\": false,\n  \"state\": \"draft\",\n  \"is_title_image_full_screen\": false,\n  \"title\": \"\",\n  \"title_image\": \"\",\n  \"type\": \"article_draft\"\n}",
+			"ResponseValidate": true,
+			"ResponseMapType": "JSON",
+			"ResponseMapRule": "WhLeAxlJ.id"
+		},
+		{
+			"Prior": 2,
+			"Serial": "NWo2wJss",
+			"Name": "图片上传接口组",
+			"IsGroup": true,
+			"ParentSerial": null,
+			"Children": [
+				{
+					"Prior": 1,
+					"Serial": "FTtolxSp",
+					"Name": "获取图片hash",
+					"IsGroup": false,
+					"ParentSerial": "NWo2wJss",
+					"Children": null,
+					"Type": "images",
+					"RequestURL": "https://openapi.lddgo.net/base/gtool/api/v1/CalcHash",
+					"RequestURLPath": [],
+					"RequestMethod": "POST",
+					"RequestQuery": [],
+					"RequestHeaders": [
+						{
+							"Dynamic": false,
+							"Key": "Host",
+							"Value": "openapi.lddgo.net"
+						},
+						{
+							"Dynamic": false,
+							"Key": "User-Agent",
+							"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:122.0) Gecko/20100101 Firefox/122.0"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept",
+							"Value": "application/json, text/javascript, */*; q=0.01"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Language",
+							"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Encoding",
+							"Value": "gzip, deflate"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Content-Type",
+							"Value": "application/json;charset=UTF-8"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Origin",
+							"Value": "https://www.lddgo.net"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Referer",
+							"Value": "https://www.lddgo.net/"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Dest",
+							"Value": "empty"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Mode",
+							"Value": "cors"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Site",
+							"Value": "same-site"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Te",
+							"Value": "trailers"
+						}
+					],
+					"RequestBody": [
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": false,
+							"Key": "file",
+							"Value": ""
+						},
+						{
+							"IsFile": false,
+							"FileName": "1.content-string",
+							"Dynamic": true,
+							"Key": "inputContent",
+							"Value": "IMG-CONTENT-HEX"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": false,
+							"Key": "contentType",
+							"Value": "hex"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": false,
+							"Key": "charset",
+							"Value": "UTF-8"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": false,
+							"Key": "algorithm",
+							"Value": "MD5"
+						}
+					],
+					"RequestBodyType": "JSON",
+					"ResponseType": "JSON",
+					"ResponseTemple": "{\"code\":0,\"msg\":null,\"data\":{\"hexResult\":\"b1cb0098d852f9a40f7b1f92c41250c0\",\"base64Result\":\"scsAmNhS+aQPex+SxBJQwA==\"}}",
+					"ResponseValidate": true,
+					"ResponseMapType": "JSON",
+					"ResponseMapRule": "FTtolxSp.data.hexResult"
+				},
+				{
+					"Prior": 2,
+					"Serial": "4FhIFqIv",
+					"Name": "上传图片预置",
+					"IsGroup": false,
+					"ParentSerial": "NWo2wJss",
+					"Children": null,
+					"Type": "normal",
+					"RequestURL": "https://api.zhihu.com/images",
+					"RequestURLPath": [],
+					"RequestMethod": "POST",
+					"RequestQuery": [],
+					"RequestHeaders": [
+						{
+							"Dynamic": false,
+							"Key": "Host",
+							"Value": "api.zhihu.com"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Cookie",
+							"Value": "_zap=3119ef3b-b98e-4edf-94e4-f3edacb5fb4e; d_c0=ACBZdX7i2haPTrvBsid790cC0IPWzniQIEU=|1685426228; Hm_lvt_98beee57fd2ef70ccdd5ca52b9740c49=1709014877,1709103188; captcha_session_v2=2|1:0|10:1706603266|18:captcha_session_v2|88:UW1xR2pRWmRwTFpCeE9qdlRZcVhXUDNwR2o4QVU2T2t0dGRNYUdkU0RnM3JvSGRudUtiU1lUVFU4bC9TYjR1Tg==|d8eb79470edec84832271d81e51ef76349cbcb9280fecd20552c4ef39017d6e6; z_c0=2|1:0|10:1706603297|4:z_c0|92:Mi4xaUx4ZkN3QUFBQUFBSUZsMWZ1TGFGaGNBQUFCZ0FsVk5Ed0dtWmdBRXFiWGhXUTRZb1RWdFFuU2tha2dSQzhsT1hn|d21bd83d1f1a32bfd1540e36789b421d1a514b8cc4604f205171a592cb2dddac; _xsrf=0b24956c-14b1-4a5d-a6b6-bac911e7f183; Hm_lpvt_98beee57fd2ef70ccdd5ca52b9740c49=1709171199; tst=r; KLBRSID=dc02df4a8178e8c4dfd0a3c8cbd8c726|1709171200|1709171107"
+						},
+						{
+							"Dynamic": false,
+							"Key": "User-Agent",
+							"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:123.0) Gecko/20100101 Firefox/123.0"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept",
+							"Value": "*/*"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Language",
+							"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Encoding",
+							"Value": "gzip, deflate"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Referer",
+							"Value": "https://zhuanlan.zhihu.com/p/684501486/edit"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Content-Type",
+							"Value": "application/json"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Content-Length",
+							"Value": "68"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Origin",
+							"Value": "https://zhuanlan.zhihu.com"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Dest",
+							"Value": "empty"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Mode",
+							"Value": "cors"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Site",
+							"Value": "same-site"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Te",
+							"Value": "trailers"
+						}
+					],
+					"RequestBody": [
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "image_hash",
+							"Value": "FTtolxSp.data.hexResult"
+						},
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": false,
+							"Key": "source",
+							"Value": "article"
+						}
+					],
+					"RequestBodyType": "JSON",
+					"ResponseType": "JSON",
+					"ResponseTemple": "{\"upload_token\": {\"access_key\": \"\", \"access_token\": \"\", \"access_timestamp\": 1709174817, \"access_id\": \"\"}, \"upload_file\": {\"image_id\": \"\", \"state\": 2, \"object_key\": \"\"}}",
+					"ResponseValidate": false,
+					"ResponseMapType": "NONE",
+					"ResponseMapRule": ""
+				},
+				{
+					"Prior": 3,
+					"Serial": "CjQZlrJ2",
+					"Name": "上传图片",
+					"IsGroup": false,
+					"ParentSerial": "NWo2wJss",
+					"Children": null,
+					"Type": "normal",
+					"RequestURL": "https://zhihu-pics-upload.zhimg.com/",
+					"RequestURLPath": [
+						{
+							"Dynamic": true,
+							"Value": "4FhIFqIv.upload_file.object_key"
+						}
+					],
+					"RequestMethod": "PUT",
+					"RequestQuery": [],
+					"RequestHeaders": [
+						{
+							"Dynamic": false,
+							"Key": "Host",
+							"Value": "zhihu-pics-upload.zhimg.com"
+						},
+						{
+							"Dynamic": false,
+							"Key": "User-Agent",
+							"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept",
+							"Value": "*/*"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Language",
+							"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Accept-Encoding",
+							"Value": "gzip, deflate"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Oss-Date",
+							"Value": "Thu, 29 Feb 2024 01:46:56 GMT"
+						},
+						{
+							"Dynamic": false,
+							"Key": "X-Oss-User-Agent",
+							"Value": "aliyun-sdk-js/6.8.0 Firefox 123.0 on OS X 10.15"
+						},
+						{
+							"Dynamic": true,
+							"Key": "X-Oss-Security-Token",
+							"Value": "4FhIFqIv.upload_token.access_token"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Content-Type",
+							"Value": "image/jpeg"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Origin",
+							"Value": "https://zhuanlan.zhihu.com"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Referer",
+							"Value": "https://zhuanlan.zhihu.com/"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Dest",
+							"Value": "empty"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Mode",
+							"Value": "cors"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Sec-Fetch-Site",
+							"Value": "cross-site"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Te",
+							"Value": "trailers"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Connection",
+							"Value": "close"
+						},
+						{
+							"Dynamic": false,
+							"Key": "Cookie",
+							"Value": "此处粘贴自己的cookie"
+						}
+					],
+					"RequestBody": [
+						{
+							"IsFile": false,
+							"FileName": "",
+							"Dynamic": true,
+							"Key": "none",
+							"Value": "IMG-CONTENT-STR"
+						}
+					],
+					"RequestBodyType": "JSONTEXT",
+					"ResponseType": "NONE",
+					"ResponseTemple": "",
+					"ResponseValidate": false,
+					"ResponseMapType": "NONE",
+					"ResponseMapRule": ""
+				}
+			],
+			"Type": "images",
+			"RequestURL": "",
+			"RequestURLPath": [],
+			"RequestMethod": "",
+			"RequestQuery": [],
+			"RequestHeaders": [],
+			"RequestBody": [],
+			"RequestBodyType": "NONE",
+			"ResponseType": "NONE",
+			"ResponseTemple": "",
+			"ResponseValidate": false,
+			"ResponseMapType": "NONE",
+			"ResponseMapRule": ""
+		},
+		{
+			"Prior": 3,
+			"Serial": "nxSmzXwD",
+			"Name": "转化文章",
+			"IsGroup": false,
+			"ParentSerial": null,
+			"Children": [],
+			"Type": "normal",
+			"RequestURL": "https://www.zhihu.com/api/v4/document_convert",
+			"RequestURLPath": [],
+			"RequestMethod": "POST",
+			"RequestQuery": [],
+			"RequestHeaders": [
+				{
+					"Dynamic": false,
+					"Key": "Host",
+					"Value": "www.zhihu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cookie",
+					"Value": "此处粘贴自己的cookie"
+				},
+				{
+					"Dynamic": false,
+					"Key": "User-Agent",
+					"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept",
+					"Value": "*/*"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Language",
+					"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Encoding",
+					"Value": "deflate"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Referer",
+					"Value": "https://zhuanlan.zhihu.com/write"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Requested-With",
+					"Value": "fetch"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Origin",
+					"Value": "https://zhuanlan.zhihu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Dest",
+					"Value": "empty"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Mode",
+					"Value": "cors"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Site",
+					"Value": "same-site"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Te",
+					"Value": "trailers"
+				}
+			],
+			"RequestBody": [
+				{
+					"IsFile": true,
+					"FileName": "test.md",
+					"Dynamic": true,
+					"Key": "document",
+					"Value": "ART-CONTENT-STR"
+				}
+			],
+			"RequestBodyType": "FORMDATA",
+			"ResponseType": "JSON",
+			"ResponseTemple": "{\"html\": \"\", \"filename\": \"test.md\"}",
+			"ResponseValidate": true,
+			"ResponseMapType": "JSON",
+			"ResponseMapRule": "nxSmzXwD.html"
+		},
+		{
+			"Prior": 4,
+			"Serial": "17KvjYun",
+			"Name": "保存文章",
+			"IsGroup": false,
+			"ParentSerial": null,
+			"Children": [],
+			"Type": "article",
+			"RequestURL": "https://zhuanlan.zhihu.com/api/articles/",
+			"RequestURLPath": [
+				{
+					"Dynamic": true,
+					"Value": "WhLeAxlJ.id"
+				},
+				{
+					"Dynamic": false,
+					"Value": "/draft"
+				}
+			],
+			"RequestMethod": "PATCH",
+			"RequestQuery": [],
+			"RequestHeaders": [
+				{
+					"Dynamic": false,
+					"Key": "Host",
+					"Value": "zhuanlan.zhihu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cookie",
+					"Value": "此处粘贴自己的cookie"
+				},
+				{
+					"Dynamic": false,
+					"Key": "User-Agent",
+					"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept",
+					"Value": "*/*"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Language",
+					"Value": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Accept-Encoding",
+					"Value": "gzip, deflate"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Referer",
+					"Value": "https://zhuanlan.zhihu.com/p/684177751/edit"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Content-Type",
+					"Value": "application/json"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Requested-With",
+					"Value": "fetch"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Xsrftoken",
+					"Value": "5308cbcc-e010-4f07-ae69-fd895300f296"
+				},
+				{
+					"Dynamic": false,
+					"Key": "X-Zst-81",
+					"Value": "3_2.0aR_sn77yn6O92wOB8hPZniUZkT2x-7om0CNMDrxTrR2xQRY01T2Z-we8gGHPDRFZ8TY0jQgM7A2pr6P0mRPO7HoY70SfquPmz93mhDQyiqV9ebO1hwOYiiR0ELYuUrxmtDomqU7ynXtOnAoTh_PhRDSTFQHYrU29nwwmUGN0kcOfbXeq49XCcv9BXqeOC9O8s4XOSRHYzrOVeHY__qSTvHefewcuecH8f4LYwcg8bGwLJrSfFhCLSD30jcP868Yf3COYnh900wS_nDcqlwO0b7uKarLKpBoBM_SMWJuKtJeVJbeCB9OBpbOBtucVJQSLGRY_8cC0Vqkw-JHG4cxBzco8gbL1FrXKzbS9WUxyfqcO8GXK_uoMoLSBzugs-Bcf6Gg8nGRYrqYVVUO1HckC2CLGb_pVPUV_jh2C_ULYyBS1SvH_nBYBWupLQ0LK-BLC"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Content-Length",
+					"Value": "86"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Origin",
+					"Value": "https://zhuanlan.zhihu.com"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Dest",
+					"Value": "empty"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Mode",
+					"Value": "cors"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Sec-Fetch-Site",
+					"Value": "same-origin"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Pragma",
+					"Value": "no-cache"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Cache-Control",
+					"Value": "no-cache"
+				},
+				{
+					"Dynamic": false,
+					"Key": "Te",
+					"Value": "trailers"
+				}
+			],
+			"RequestBody": [
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": true,
+					"Key": "content",
+					"Value": "nxSmzXwD.html"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "table_of_contents",
+					"Value": "false"
+				},
+				{
+					"IsFile": false,
+					"FileName": "",
+					"Dynamic": false,
+					"Key": "delta_time",
+					"Value": "34"
+				}
+			],
+			"RequestBodyType": "JSON",
+			"ResponseType": "NONE",
+			"ResponseTemple": "",
+			"ResponseValidate": false,
+			"ResponseMapType": "NONE",
+			"ResponseMapRule": ""
+		}
+	],
+	"ReplaceMaps": [
+		{
+			"Disabled": false,
+			"Type": "Headers",
+			"Key": "Cookie",
+			"Value": "此处粘贴自己的cookie",
+			"Interfaces": [
+				"WhLeAxlJ",
+				"nxSmzXwD",
+				"17KvjYun",
+				"CjQZlrJ2"
+			]
+		},
+		{
+			"Disabled": false,
+			"Type": "Headers",
+			"Key": "User-Agent",
+			"Value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+			"Interfaces": [
+				"WhLeAxlJ",
+				"nxSmzXwD",
+				"17KvjYun",
+				"CjQZlrJ2"
+			]
+		}
+	]
+}
