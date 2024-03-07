@@ -34,13 +34,12 @@
                 <t-col class="title">记录ID: </t-col>
                 <t-col class="content">{{ interfaceRecordsStore.curRecord.RecordID }}</t-col>
             </t-row>
-            <t-row justify="space-between">
+            <t-row justify="space-between"  style="margin-top: 10px;">
                 <t-col>
                     <t-radio-group v-model:value="bodyType">
                         <t-radio-button value="Request" label="请求报文"></t-radio-button>
                         <t-radio-button value="Response" label="响应报文"></t-radio-button>
                     </t-radio-group>
-
                 </t-col>
                 <t-col>
                     <div style="display: flex;align-items: center;">
@@ -158,6 +157,7 @@ function copyToClipboard() {
     display: flex;
     width: 100%;
     align-items: center;
+    margin-top: 10px;
 
     .title {
         width: 80px;

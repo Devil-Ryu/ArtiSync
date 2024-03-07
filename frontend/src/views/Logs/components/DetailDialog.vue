@@ -31,11 +31,11 @@
                     <t-col class="title">日志时间: </t-col>
                     <t-col class="content">{{ logDetailStore.logData.datetime }}</t-col>
                 </t-row>
-                <t-row justify="space-between">
+                <t-row justify="space-between" style="margin-top: 10px;">
                     <t-col>
-                        <t-radio-group>
-                            <t-radio-button value="请求报文" label="请求报文"></t-radio-button>
-                            <t-radio-button value="响应报文"  label="响应报文"></t-radio-button>
+                        <t-radio-group default-value="日志详情">
+                            <!-- <t-radio-button value="请求报文" label="请求报文" ></t-radio-button> -->
+                            <t-radio-button value="日志详情"  label="日志详情"></t-radio-button>
                         </t-radio-group>
                     </t-col>
                     <t-col>
@@ -100,6 +100,7 @@ function contentTypeChange(value) {
     display: flex;
     width: 100%;
     align-items: center;
+    margin-top: 10px;
 
     .title {
         width: 80px;
