@@ -67,7 +67,7 @@ wails build
 
 ### 2.自定义平台
 
-软件中用请遵循[软件许可使用协议](https://github.com/Devil-Ryu/ArtiSync/blob/master/AGREEMENT.md)，软件使用可查看[软件使用手册](https://github.com/Devil-Ryu/ArtiSync/blob/master/manual.md)
+软件使用请遵循[软件许可使用协议](https://github.com/Devil-Ryu/ArtiSync/blob/master/AGREEMENT.md)，软件具体功能使用可查看[软件使用手册](https://github.com/Devil-Ryu/ArtiSync/blob/master/manual.md)
 
 ## 已完成功能
 - [X] 修改接口增加请求头，请求体的方法
