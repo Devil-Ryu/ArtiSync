@@ -61,7 +61,7 @@
             </t-row>
           </div>
         </t-tab-panel>
-        <t-tab-panel label="编辑接口" value="interface">
+        <t-tab-panel label="接口配置" value="interface">
           <t-collapse expand-icon-placement="right" expand-mutex borderless>
             <div v-for="(interface_, index) in interfacesStore.platform.Interfaces">
               <t-card v-if="interface_.ParentSerial == undefined" :shadow="true" style="margin-top: 10px; padding: 0">
