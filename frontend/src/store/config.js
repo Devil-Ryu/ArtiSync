@@ -7,6 +7,7 @@ export const useConfigStore = defineStore('config', ()=>{
     const defaultConfig = {
         dbPath: "backend/models/test.db",
         imagePath: "",
+        imageReadType: "LOCAL",
         imageSelect: "相对文章目录",
         proxyURL: "http://127.0.0.1:8080",
         requestSleep: 1
@@ -15,6 +16,7 @@ export const useConfigStore = defineStore('config', ()=>{
     const systemConfig = ref({
         dbPath: "backend/models/test.db",
         imagePath: "",
+        imageReadType: "LOCAL",
         imageSelect: "相对文章目录",
         proxyURL: "http://127.0.0.1:8080",
         requestSleep: 1

@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path"
 	"regexp"
@@ -31,6 +32,7 @@ type MarkdownTool struct {
 	ImagesInfo    []ImageInfo // 图片信息
 	MarkdownPath  string      // 文章路径
 	ImagePath     string      // 图片路径
+	ImageReadType string      // 图片读取方式
 	artlog.Logger
 }
 
@@ -74,11 +76,26 @@ func (m *MarkdownTool) extractImages(markdownLines []string) (imagesInfo []Image
 func (m *MarkdownTool) loadImages() error {
 	for index, imgInfo := range m.ImagesInfo {
 		imagePath := imgInfo.URL
-		image, err := m.ReadImage(path.Join(m.ImagePath, imagePath))
-		if err != nil {
-			return fmt.Errorf("loadImages: %w", err)
+		fmt.Println("m.ImageReadType ", m.ImageReadType)
+
+		// 如果是本地读取
+		if m.ImageReadType == "LOCAL" {
+			image, err := m.ReadImage(path.Join(m.ImagePath, imagePath))
+			if err != nil {
+				return fmt.Errorf("本地读取图片错误: %w", err)
+			}
+			m.ImagesInfo[index].Image = image
+
 		}
-		m.ImagesInfo[index].Image = image
+
+		// 如果是从远程读取
+		if m.ImageReadType == "REMOTE" {
+			image, err := m.DownloadImage(imagePath)
+			if err != nil {
+				return fmt.Errorf("图片链接下载错误: %w", err)
+			}
+			m.ImagesInfo[index].Image = image
+		}
 	}
 	return nil
 }
@@ -117,7 +134,7 @@ func (m *MarkdownTool) ReadImage(imageName string) ([]byte, error) {
 	file, err := os.Open(imageName)
 	if err != nil {
 		// m.PushLog("error", fmt.Sprintf("Open File Error: %s", err))
-		return nil, fmt.Errorf("ReadImage open: %w", err)
+		return nil, fmt.Errorf("打开图片错误: %w", err)
 
 	}
 
@@ -125,9 +142,27 @@ func (m *MarkdownTool) ReadImage(imageName string) ([]byte, error) {
 	imageBytes, err := io.ReadAll(file)
 	if err != nil {
 		// m.PushLog("error", fmt.Sprintf("Read Image Error: %s", err))
-		return nil, fmt.Errorf("ReadImage read: %w", err)
+		return nil, fmt.Errorf("读取图片文件错误: %w", err)
 	}
 
 	return imageBytes, nil
 
+}
+
+// DownloadImage 下载图片
+func (m *MarkdownTool) DownloadImage(imageURL string) ([]byte, error) {
+	response, err := http.Get(imageURL)
+
+	if err != nil {
+		err = fmt.Errorf("网络请求错误: %w", err)
+		return nil, err
+	}
+
+	respBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		err = fmt.Errorf("读取文件错误: %w", err)
+		return nil, err
+	}
+
+	return respBytes, nil
 }

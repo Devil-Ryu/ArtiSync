@@ -1,4 +1,5 @@
 # 软件使用手册
+# 软件使用手册
 ## 1.发布文章
 导入数据: 选择Markdown所在的文件夹，批量导入Markdown
 
@@ -86,17 +87,21 @@
 
 ![image](images/JE0rikb3rMGvAY7uRaQmdmceeXOJYDqpRowXnQCWVoI.png)
 
-
-
 ## 3 接口记录
 用于查看接口运行的记录
 
 ![image](images/xIOIo6dUeoRymhKFZh_oaNK3d6zc4BEEVNoYtiZ7n0w.png)
 
+![image](images/8rTolTDxPfeR4_QlHsFk2giGdgaEHPzotLWTbWLlCsc.png)
+
+![image](images/Mne_YokQ7KG5YiwOFVa6tpTw9YVCFY4HCUZzWBZnZfU.png)
+
 ## 4 日志中心
 用于查看系统运行时对日志
 
 ![image](images/JjgB0FqPjAJyDBlWDd8XDx4llaT6Spyv8yjJ5ZESmGE.png)
+
+![image](images/WIjGaY4BipDdZv-6u3_wV0Lx2iSIme9ktS1NTmqLibc.png)
 
 ## 5 系统设置
 ### 5.1 文章设置

@@ -148,7 +148,7 @@
 						{
 							"Dynamic": true,
 							"Key": "filename",
-							"Value": "IMG-TITLE"
+							"Value": "IMG-URL"
 						}
 					],
 					"RequestHeaders": [
@@ -324,7 +324,7 @@
 						},
 						{
 							"IsFile": true,
-							"FileName": "IMG-TITLE",
+							"FileName": "IMG-URL",
 							"Dynamic": true,
 							"Key": "file",
 							"Value": "IMG-CONTENT-STR"

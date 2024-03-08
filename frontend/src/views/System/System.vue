@@ -1,86 +1,100 @@
 <template>
     <div>
-    <TForm label-align="top">
-        <!-- 文章设置卡片 -->
-        <SettingCard title="文章设置">
-            <template #content>
-                <t-form-item label="图片文件夹" name="setting2">
+        <TForm label-align="top">
+            <!-- 文章设置卡片 -->
+            <SettingCard title="文章设置">
+                <template #content>
                     <t-row style="width: 100%;" :gutter="10">
-                        <t-col flex="none">
-                            <TSelect v-model:value="configStore.systemConfig.imageSelect" :options="imagePathOptions" />
-                        </t-col>
-                        <t-col flex="auto">
-                            <t-input v-model="configStore.systemConfig.imagePath" placeholder="相对文章时为空则默认跟文章目录同一级">
-                                <template #suffixIcon>
-                                    <FolderOpen1Icon style="cursor: pointer" @click="SetDir('imagePath')" />
-                                </template>
-                            </t-input>
-                        </t-col>
+                        <t-form-item label="图片读取方式" name="imageRead" style="width: 100%;">
+                            <t-col flex="none">
+                                <TSelect v-model:value="configStore.systemConfig.imageReadType"
+                                    :options="imageReadOptions" />
+                            </t-col>
+                        </t-form-item>
                     </t-row>
-                </t-form-item>
-            </template>
-        </SettingCard>
+                    <t-row style="width: 100%;" :gutter="10">
+                        <t-form-item label="图片文件夹 ( 本地文件读取时生效 )" name="imageDir" style="width: 100%;">
+                            <t-col flex="none">
+                                <TSelect v-model:value="configStore.systemConfig.imageSelect"
+                                    :options="imagePathOptions" />
+                            </t-col>
+                            <t-col flex="auto">
+                                <t-input v-model="configStore.systemConfig.imagePath" placeholder="相对文章时为空则默认跟文章目录同一级">
+                                    <template #suffixIcon>
+                                        <FolderOpen1Icon style="cursor: pointer" @click="SetDir('imagePath')" />
+                                    </template>
+                                </t-input>
+                            </t-col>
+                        </t-form-item>
+                    </t-row>
 
-        <!-- 系统设置 -->
-        <SettingCard title="系统设置">
-            <template #content>
-                <t-row :gutter="10">
-                    <t-col flex="auto">
-                        <t-form-item label="系统配置路径" name="sysPath">
-                            <t-input v-model="configStore.sysPath" placeholder="请输入" disabled>
-                                <!-- <template #suffixIcon>
+
+                </template>
+            </SettingCard>
+
+            <!-- 系统设置 -->
+            <SettingCard title="系统设置">
+                <template #content>
+                    <t-row :gutter="10">
+                        <t-col flex="auto">
+                            <t-form-item label="系统配置路径" name="sysPath">
+                                <t-input v-model="configStore.sysPath" placeholder="请输入" disabled>
+                                    <!-- <template #suffixIcon>
                                     <FolderOpen1Icon style="cursor: pointer" @click="SetDir('sysPath')" />
                                 </template> -->
-                            </t-input>
-                        </t-form-item>
-                    </t-col>
-                </t-row>
-                <t-row :gutter="10">
-                    <t-col flex="auto">
-                        <t-form-item label="数据库文件" name="dbPath">
-                            <t-input v-model="configStore.systemConfig.dbPath" placeholder="请输入">
-                                <template #suffixIcon>
-                                    <FolderOpen1Icon style="cursor: pointer" @click="SetDir('dbPath')" />
-                                </template>
-                            </t-input>
-                        </t-form-item>
-                    </t-col>
-                </t-row>
-                <t-row :gutter="10">
-                    <t-col flex="auto">
-                        <t-form-item label="代理" name="proxy">
-                            <t-input v-model="configStore.systemConfig.proxyURL" placeholder="http://127.0.0.1:8080">
-                            </t-input>
-                        </t-form-item>
-                    </t-col>
-                </t-row>
-                <t-row :gutter="10">
-                    <t-col flex="auto">
-                        <t-form-item label="接口请求速度限制" name="requestSleep">
-                            <t-input-number style="width: 100%;" v-model="configStore.systemConfig.requestSleep" align="right" label="每运行一个接口睡眠" suffix="秒" theme="column" default-value="1" placeholder="1"  />
-                        </t-form-item>
-                    </t-col>
-                </t-row>
-            </template>
-        </SettingCard>
+                                </t-input>
+                            </t-form-item>
+                        </t-col>
+                    </t-row>
+                    <t-row :gutter="10">
+                        <t-col flex="auto">
+                            <t-form-item label="数据库文件" name="dbPath">
+                                <t-input v-model="configStore.systemConfig.dbPath" placeholder="请输入">
+                                    <template #suffixIcon>
+                                        <FolderOpen1Icon style="cursor: pointer" @click="SetDir('dbPath')" />
+                                    </template>
+                                </t-input>
+                            </t-form-item>
+                        </t-col>
+                    </t-row>
+                    <t-row :gutter="10">
+                        <t-col flex="auto">
+                            <t-form-item label="代理" name="proxy">
+                                <t-input v-model="configStore.systemConfig.proxyURL"
+                                    placeholder="http://127.0.0.1:8080">
+                                </t-input>
+                            </t-form-item>
+                        </t-col>
+                    </t-row>
+                    <t-row :gutter="10">
+                        <t-col flex="auto">
+                            <t-form-item label="接口请求速度限制" name="requestSleep">
+                                <t-input-number style="width: 100%;" v-model="configStore.systemConfig.requestSleep"
+                                    align="right" label="每运行一个接口睡眠" suffix="秒" theme="column" default-value="1"
+                                    placeholder="1" />
+                            </t-form-item>
+                        </t-col>
+                    </t-row>
+                </template>
+            </SettingCard>
 
-        <!-- 保存按钮 -->
-        <t-space style="display: flex;justify-content: center">
-            <t-button variant="outline" theme="danger" @click="resetSystemConfig">
-                <template #icon>
-                    <RefreshIcon />
-                </template>
-                重置
-            </t-button>
-            <t-button variant="outline" theme="primary" @click="saveSystemConfig">
-                <template #icon>
-                    <SaveIcon />
-                </template>
-                保存
-            </t-button>
-        </t-space>
-    </TForm>
-</div>
+            <!-- 保存按钮 -->
+            <t-space style="display: flex;justify-content: center">
+                <t-button variant="outline" theme="danger" @click="resetSystemConfig">
+                    <template #icon>
+                        <RefreshIcon />
+                    </template>
+                    重置
+                </t-button>
+                <t-button variant="outline" theme="primary" @click="saveSystemConfig">
+                    <template #icon>
+                        <SaveIcon />
+                    </template>
+                    保存
+                </t-button>
+            </t-space>
+        </TForm>
+    </div>
 
 </template>
 
@@ -99,6 +113,12 @@ const configStore = useConfigStore()
 const imagePathOptions = [
     { label: "相对文章目录", value: "相对文章目录" },
     { label: "固定图片目录", value: "固定图片目录" },
+]
+
+const imageReadOptions = [
+    { label: "不读取", value: "NONE" },
+    { label: "本地文件读取", value: "LOCAL" },
+    { label: "远程链接下载", value: "REMOTE" },
 ]
 
 function saveSystemConfig() {
@@ -139,14 +159,10 @@ function SetDir(valueName) {
     OpenDir(configStore.systemConfig[valueName]).then((response) => {
         if (response.StatusCode == 200 && response.Data !== "") {
             var selectedDir = response.Data
-            // if (valueName === "dbPath") {
-            //     configStore.systemConfig.dbPath = selectedDir
-            // }
-            // if (valueName === "imagePath") {
-            //     configStore.systemConfig.imagePath = selectedDir
-            // }
             configStore.systemConfig[valueName] = selectedDir
         }
+    }).catch((err)=>{
+        MessagePlugin.error("打开文件夹错误: "+err)
     })
 }
 

@@ -301,7 +301,7 @@
 						},
 						{
 							"IsFile": true,
-							"FileName": "IMG-TITLE",
+							"FileName": "IMG-URL",
 							"Dynamic": true,
 							"Key": "File",
 							"Value": "IMG-CONTENT-STR"

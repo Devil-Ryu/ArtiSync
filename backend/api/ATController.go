@@ -20,6 +20,7 @@ type ATController struct {
 	ArticleList       []Article                // 文章列表
 	ProxyURL          *url.URL                 // 网络代理
 	RequestSleep      int                      // 请求一次休眠时间
+	ImageReadType     string                   // 图片读取方式
 	DBController      *DBController            // 数据库控制器
 	TestNetController *utils.NetWorkController // 网络控制器(测试用)
 	CurNetController  *utils.NetWorkController // 网络控制器(运行用)
@@ -100,7 +101,6 @@ func (a *ATController) InitConfig() (err error) {
 	a.SetProxyURL(proxyURL)
 
 	// 设置NetController的requestSleep
-	fmt.Printf("requestSleep = %T\n", config["requestSleep"])
 	requestSleep, ok := config["requestSleep"].(float64)
 	if !ok {
 		err = fmt.Errorf("requestSleep解析错误: %s", config["requestSleep"])
@@ -109,6 +109,19 @@ func (a *ATController) InitConfig() (err error) {
 	}
 
 	a.RequestSleep = int(requestSleep)
+
+	// 设置图片读取方式
+	fmt.Printf("imageReadType:%s, %T\n", config["imageReadType"], config["imageReadType"])
+	imageReadType, ok := config["imageReadType"].(string)
+	if !ok {
+		err = fmt.Errorf("imageReadType解析错误: %s", config["imageReadType"])
+		a.Print(artlog.ERROR, "数据控制器", err.Error())
+
+	}
+
+	fmt.Printf("a.ImageReadType %s\n", a.ImageReadType)
+
+	a.ImageReadType = imageReadType
 
 	return err
 
@@ -196,9 +209,10 @@ func (a *ATController) LoadArticles(filePath string, imagePath string) utils.Res
 			}
 			// article.MarkdownTool.Startup(a.Ctx) // 设置context，以启用runtime
 
-			// 设置文章路径以及图片路径
+			// 设置文章路径以及图片路径以及图片读取方式
 			article.MarkdownTool.MarkdownPath = path.Join(filePath, file.Name())
 			article.MarkdownTool.ImagePath = imagePath
+			article.MarkdownTool.ImageReadType = a.ImageReadType
 
 			// 开始分析文章
 			err = article.MarkdownTool.AnalyzeMarkdown()
@@ -273,15 +287,21 @@ func (a *ATController) GenArticleDetail(articleIndex int) {
 			// 如果为组，则遍历子接口
 			if interfacesInfo.IsGroup {
 				// 计算接口组需要运行的次数
+				// 如果是不读取图片，即图片上传接口不执行
+
 				if interfacesInfo.Type == "images" {
-					article.PlatformsInfo[platform.Name].InterfacePredictRunNum += len(interfacesInfo.Children) * len(article.MarkdownTool.ImagesInfo)
+					if a.ImageReadType != "NONE" { // 如果执行图片读取接口，则算入
+						article.PlatformsInfo[platform.Name].InterfacePredictRunNum += len(interfacesInfo.Children) * len(article.MarkdownTool.ImagesInfo)
+					}
 				} else {
 					article.PlatformsInfo[platform.Name].InterfacePredictRunNum = len(interfacesInfo.Children)
 				}
 			} else { // 如果不为组，则加入列表
 				// 计算接口需要运行的次数
 				if interfacesInfo.Type == "images" {
-					article.PlatformsInfo[platform.Name].InterfacePredictRunNum += len(article.MarkdownTool.ImagesInfo)
+					if a.ImageReadType != "NONE" { // 如果执行图片读取接口，则算入
+						article.PlatformsInfo[platform.Name].InterfacePredictRunNum += len(article.MarkdownTool.ImagesInfo)
+					}
 				} else {
 					article.PlatformsInfo[platform.Name].InterfacePredictRunNum++
 				}
@@ -335,11 +355,15 @@ func (a *ATController) UpdateInterfaceRecord(interfaceRecord models.InterfaceRec
 func (a *ATController) runInterfaces(netController *utils.NetWorkController, platform models.Platform, articleIndex int, interfaces []models.Interface, interfaceType string) (err error) {
 	article := a.ArticleList[articleIndex]
 	if interfaceType == "images" {
+		// 如果是不读取图片，即图片上传接口不执行
+		if a.ImageReadType == "NONE" {
+			return err
+		}
 		// 遍历图片
 		for index, imageInfo := range article.MarkdownTool.ImagesInfo {
 			// 遍历图片时，将图片信息写入网络控制器缓存
-			netController.ResponsePool["IMG-TITLE"] = imageInfo.URL
-			netController.ResponsePoolType["IMG-TITLE"] = "TEXT"
+			netController.ResponsePool["IMG-URL"] = imageInfo.URL
+			netController.ResponsePoolType["IMG-URL"] = "TEXT"
 			netController.ResponsePool["IMG-CONTENT-STR"] = string(imageInfo.Image)
 			netController.ResponsePoolType["IMG-CONTENT-STR"] = "TEXT"
 			netController.ResponsePool["IMG-CONTENT-HEX"] = hex.EncodeToString(imageInfo.Image)
@@ -386,6 +410,7 @@ func (a *ATController) runInterfaces(netController *utils.NetWorkController, pla
 			}
 
 		}
+
 		article.MarkdownTool.ReplaceImages() // 替换链接
 
 		// 将替换后的文章转化为字符串放入网络请求池中
