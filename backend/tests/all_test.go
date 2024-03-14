@@ -3,16 +3,13 @@ package test
 import (
 	"ArtiSync/backend/api"
 	"ArtiSync/backend/models"
+	"ArtiSync/backend/platforms"
 	"ArtiSync/backend/utils"
 	"fmt"
 	"net/url"
 	"regexp"
-	"strings"
 	"testing"
 	"time"
-
-	"github.com/go-rod/rod"
-	"github.com/go-rod/rod/lib/launcher"
 )
 
 func TestController(t *testing.T) {
@@ -103,40 +100,7 @@ func appendQuery(queryList *[]string, queryParams *[]interface{}, querySQL strin
 
 func TestROd(t *testing.T) {
 
-	// 设置浏览器
-	browserPath, _ := launcher.LookPath()
-	browserLauncher := launcher.New().Bin(browserPath).Headless(false)
-	defer browserLauncher.Cleanup()
-	browser := rod.New().NoDefaultDevice().ControlURL(browserLauncher.MustLaunch()).MustConnect().MustPage()
-
-	// 访问登录页面
-	browser.MustNavigate("https://passport.csdn.net/login?code=applets")
-
-	for true {
-		pages, _ := browser.Browser().Pages()
-		fmt.Println(strings.Repeat("-", 50))
-		fmt.Println("len: ", len(pages))
-		// 如果页面全部关闭，则推出
-		if len(pages) == 0 {
-			break
-
-		} else {
-			targetPage, err := pages.FindByURL("www.csdn.net")
-			if err == nil {
-				// 打印cookie
-				cookies := targetPage.MustCookies()
-				fmt.Println("cookies: ", cookies)
-				for _, cookie := range cookies {
-					fmt.Printf("Name: %s, Value: %s, Domain: %s\n", cookie.Name, cookie.Value, cookie.Domain)
-				}
-				break
-			}
-
-			time.Sleep(2 * time.Second)
-		}
-	}
-	fmt.Println("done")
-	// 关闭浏览器
-	browserLauncher.Kill()
+	csdn := platforms.NewRodCSDN()
+	csdn.RUN()
 
 }
