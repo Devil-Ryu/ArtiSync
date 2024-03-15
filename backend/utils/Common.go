@@ -1,5 +1,15 @@
 package utils
 
+import (
+	"bufio"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
+)
+
 // ResponseJSON 响应
 type ResponseJSON struct {
 	StatusCode int         // 状态码
@@ -19,76 +29,99 @@ const (
 	Running          string = "运行中"  // 运行中
 )
 
-// // CommonUtils 常用工具
-// type CommonUtils struct {
-// 	Ctx context.Context
-// }
+// CommonUtils 常用工具
+type CommonUtils struct {
+}
 
-// // GetConfigDir 获取用户配置目录
-// func (c *CommonUtils) GetConfigDir() (dir string, err error) {
-// 	systemType := runtime.GOOS
-// 	if systemType == "darwin" {
-// 		println("Platform: Mac")
-// 	}
+// GetConfigDir 获取用户配置目录
+func (c *CommonUtils) GetConfigDir() (dir string, err error) {
+	systemType := runtime.GOOS
+	if systemType == "darwin" {
+		println("Platform: Mac")
+	}
+	// 获取用户配置目录
+	dir, err = os.UserConfigDir()
+	if err != nil {
+		return dir, fmt.Errorf("获取用户配置目录失败: %w", err)
+	}
+	configPath := filepath.Join(dir, "ArtiSync")
 
-// 	// 获取用户配置目录
-// 	dir, err = os.UserConfigDir()
-// 	if err != nil {
-// 		return dir, fmt.Errorf("获取用户配置目录失败: %w", err)
-// 	}
-// 	configPath := filepath.Join(dir, "ArtiSync")
+	err = os.Mkdir(configPath, 0755)
 
-// 	err = os.Mkdir(configPath, 0755)
+	// 当不是文件存在错误的时候则抛出错误
+	if err != nil && !os.IsExist(err) {
+		fmt.Println("err1: ", err)
+		return "", err
+	}
 
-// 	// 当不是文件存在错误的时候则抛出错误
-// 	if err != nil && !os.IsExist(err) {
-// 		fmt.Println("err1: ", err)
-// 		return "", err
-// 	}
+	return configPath, err
+}
 
-// 	return configPath, err
-// }
+// GetConfigFilePath 获取配置文件
+func (c *CommonUtils) GetConfigFilePath() (configFilePath string, err error) {
+	// 获取配置文件地址
+	configPath, err := c.GetConfigDir()
+	if err != nil {
+		return configFilePath, err
+	}
+	configFilePath = filepath.Join(configPath, "config.json")
 
-// // LoadJSONFile 加载JSON文件
-// func (c *CommonUtils) LoadJSONFile(fileDir string) (jsonMap map[string]interface{}, err error) {
-// 	dataBytes, err := os.ReadFile(fileDir)
-// 	if err != nil {
-// 		return jsonMap, fmt.Errorf("LoadJSONFile read file error: %w", err)
-// 	}
+	defaultConfig := map[string]interface{}{
+		"dbPath":      filepath.Join(configPath, "artisync.db"),
+		"imagePath":   "",
+		"imageSelect": "相对文章目录",
+		"proxyURL":    "",
+	}
 
-// 	// 读取文件内容
-// 	err = json.Unmarshal(dataBytes, &jsonMap)
-// 	if err != nil {
-// 		return jsonMap, fmt.Errorf("LoadJSONFile json Unmarshal error: %w", err)
-// 	}
-// 	return jsonMap, nil
-// }
+	// 尝试加载配置文件
+	_, err = c.LoadJSONFile(configFilePath)
+	if err != nil {
+		// 将默认配置进行保存
+		err = c.SaveJSONFile(configFilePath, defaultConfig)
+	}
+	return configFilePath, err
+}
 
-// // SaveJSONFile 加载JSON文件
-// func (c *CommonUtils) SaveJSONFile(fileDir string, jsonMap map[string]interface{}) (err error) {
-// 	// 先序列化
+// LoadJSONFile 加载JSON文件
+func (c *CommonUtils) LoadJSONFile(fileDir string) (jsonMap map[string]interface{}, err error) {
+	dataBytes, err := os.ReadFile(fileDir)
+	if err != nil {
+		return jsonMap, fmt.Errorf("LoadJSONFile read file error: %w", err)
+	}
 
-// 	jsonStr, err := json.Marshal(jsonMap)
-// 	if err != nil {
-// 		return fmt.Errorf("SaveJSONFile  marshal platform error: %w", err)
-// 	}
+	// 读取文件内容
+	err = json.Unmarshal(dataBytes, &jsonMap)
+	if err != nil {
+		return jsonMap, fmt.Errorf("LoadJSONFile json Unmarshal error: %w", err)
+	}
+	return jsonMap, nil
+}
 
-// 	// 格式化字符串
-// 	var formatStr bytes.Buffer
-// 	err = json.Indent(&formatStr, jsonStr, "", "\t")
-// 	if err != nil {
-// 		return fmt.Errorf("SaveJSONFile format jsonStr error: %w", err)
-// 	}
+// SaveJSONFile 加载JSON文件
+func (c *CommonUtils) SaveJSONFile(fileDir string, jsonMap map[string]interface{}) (err error) {
+	// 先序列化
 
-// 	file, err := os.Create(fileDir)
-// 	if err != nil {
-// 		return fmt.Errorf("SaveJSONFile create file error: %w", err)
-// 	}
-// 	bw := bufio.NewWriter(file)
-// 	_, err = bw.WriteString(formatStr.String())
-// 	if err != nil {
-// 		return fmt.Errorf("SaveJSONFile write content error: %w", err)
-// 	}
-// 	bw.Flush()
-// 	return nil
-// }
+	jsonStr, err := json.Marshal(jsonMap)
+	if err != nil {
+		return fmt.Errorf("SaveJSONFile  marshal platform error: %w", err)
+	}
+
+	// 格式化字符串
+	var formatStr bytes.Buffer
+	err = json.Indent(&formatStr, jsonStr, "", "\t")
+	if err != nil {
+		return fmt.Errorf("SaveJSONFile format jsonStr error: %w", err)
+	}
+
+	file, err := os.Create(fileDir)
+	if err != nil {
+		return fmt.Errorf("SaveJSONFile create file error: %w", err)
+	}
+	bw := bufio.NewWriter(file)
+	_, err = bw.WriteString(formatStr.String())
+	if err != nil {
+		return fmt.Errorf("SaveJSONFile write content error: %w", err)
+	}
+	bw.Flush()
+	return nil
+}
