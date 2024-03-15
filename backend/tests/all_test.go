@@ -99,8 +99,25 @@ func appendQuery(queryList *[]string, queryParams *[]interface{}, querySQL strin
 }
 
 func TestROd(t *testing.T) {
+	at := api.NewATController()
+	at.LoadArticles("/Users/ryu/Documents/test", "/Users/ryu/Documents/test")
 
 	csdn := platforms.NewRodCSDN()
-	csdn.RUN()
+
+	/*设置cookie*/
+	// cookies := csdn.Login(browser)
+	// csdn.saveToJSON(cookies)
+	cookies, _ := csdn.ReadCookies()
+	csdn.SetCookies(cookies)
+
+	csdn.GetProfile()
+	csdn.GetProfile()
+	// csdn.SetArticle(&at.ArticleList[0])
+	// csdn.RUN()
+	// time.Sleep(300 * time.Second)
+
+	// bot := &api.RODController{}
+	// bot.StartBrowser()
+	// fmt.Println("done!")
 
 }
