@@ -16,6 +16,19 @@ ArtiSync（多平台文章同步）是一个能批量将MarkDown文章，上传�
 
 ![文章发布流程](images/ArtiSync_Publish.jpg)
 
+## 通知
+整了一个新项目，原理是用机器人打开浏览器上传：
+好处是：
+
+解决了自己挨个抓接口，测试接口，以及部分接口不好绕过的问题
+可一键打开平台登录页以登录获取cookie，一键打开上传完后的平台页，方便登录和发布
+坏处是：
+1.新增平台需要在源代码上修改，增加go文件
+2.部分平台可能有机器人检测，需要进行处理
+新项目地址如下：[ArtiSync-Rod](https://github.com/Devil-Ryu/ArtiSync-Rod)
+
+PS：后续会考虑把登录功能和打开发布页功能同步到该接口版本上，不过目前精力有限，若有刚需要求的，可从[ArtiSync-Rod](https://github.com/Devil-Ryu/ArtiSync-Rod)中把核心代码进行合并到此版本
+
 ## 上手指南
 
 1. 根据操作系统安装[wails](https://wails.io/zh-Hans/docs/gettingstarted/installation/)
